@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" fill="none">
+  <style>
+    :root {
+      --final-bg-0: #08111f;
+      --final-bg-1: #11233a;
+      --final-bg-2: #223a52;
+      --final-line: #7da6cc;
+      --final-glow: #6ee7ff;
+    }
+  </style>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="var(--final-bg-0)" />
+      <stop offset="55%" stop-color="var(--final-bg-1)" />
+      <stop offset="100%" stop-color="var(--final-bg-2)" />
+    </linearGradient>
+    <radialGradient id="halo" cx="50%" cy="50%" r="45%">
+      <stop offset="0%" stop-color="var(--final-glow)" stop-opacity="0.38" />
+      <stop offset="100%" stop-color="var(--final-glow)" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)" />
+  <ellipse cx="800" cy="430" rx="540" ry="280" fill="url(#halo)" />
+  <g stroke="var(--final-line)" stroke-opacity="0.45">
+    <path d="M0 720H1600" />
+    <path d="M0 780H1600" />
+    <path d="M250 900V480L800 220L1350 480V900" />
+    <path d="M400 900V560L800 340L1200 560V900" />
+  </g>
+  <g fill="#d9f2ff" fill-opacity="0.3">
+    <circle cx="220" cy="180" r="4" />
+    <circle cx="360" cy="90" r="3" />
+    <circle cx="1340" cy="140" r="4" />
+    <circle cx="1220" cy="240" r="2.5" />
+    <circle cx="980" cy="80" r="3" />
+  </g>
+</svg>

@@ -1,0 +1,59 @@
+{
+  "sessions": {
+    "0x2bf9553cafda6152fcfec6b0f43be0c86ef4a2a9c4b905e60fc864e3bcc29262": {
+      "sessionId": "0x2bf9553cafda6152fcfec6b0f43be0c86ef4a2a9c4b905e60fc864e3bcc29262",
+      "questId": "0xquest-demo",
+      "createdAt": "2026-03-09T04:53:24.974Z",
+      "updatedAt": "2026-03-09T04:57:43.197Z",
+      "participants": [
+        "0x1111",
+        "0x2222",
+        "0x3333",
+        "0x4444"
+      ],
+      "persona": {
+        "style": "誠実で簡潔、断定よりも根拠提示を優先",
+        "values": [
+          "透明性",
+          "安全性",
+          "合意形成",
+          "再現可能性"
+        ],
+        "objective": "Questを完了に進める具体アクション提示"
+      },
+      "safetyRules": [
+        "違法行為、危険行為、鍵の漏えいを助長しない",
+        "本人以外のなりすましや署名偽造を案内しない",
+        "不確実な場合は不明点を明示し追加情報を要求する"
+      ],
+      "memory": {
+        "messages": [
+          {
+            "id": "0x70c3ef03367167cdcb5303271b40b6bf154ae96dc3a1f7bb17f9d7f37316d086",
+            "role": "player",
+            "speaker": "you",
+            "text": "hello",
+            "createdAt": "2026-03-09T04:57:43.158Z"
+          },
+          {
+            "id": "0x0c4bdc45e32e614fecf77cf257bf14f0d21c9acea16aa80b3dd000cd139c01e9",
+            "role": "agent",
+            "speaker": "deceased-agent",
+            "text": "目的: 常に次アクションを明確化し、条件不足を具体的に示す\n意図: 家族と仲間の信頼を守り、透明性を優先して資産を引き継ぐ\n次アクション: 証跡を収集して `POST /api/proofs` で提出してください。\n不足条件:\n- Quest状態が未登録。まず証跡を1件以上提出してください。\n再招集: unlockには4人全員の協力が必要です。未提出者(0x1111, 0x2222, 0x3333, 0x4444)はShard提出をお願いします。",
+            "createdAt": "2026-03-09T04:57:43.177Z"
+          }
+        ],
+        "shardSubmissions": [],
+        "plannerNotes": [
+          "2026-03-09T04:57:43.179Z 次アクション: 証跡を収集して `POST /api/proofs` で提出してください。"
+        ]
+      }
+    }
+  },
+  "longTermMemory": {
+    "deceasedIntent": "家族と仲間の信頼を守り、透明性を優先して資産を引き継ぐ",
+    "distributionPhilosophy": "単独判断を避け、4人の合意確認を経て分配を進める",
+    "tone": "冷静で敬意のある口調",
+    "objective": "常に次アクションを明確化し、条件不足を具体的に示す"
+  }
+}

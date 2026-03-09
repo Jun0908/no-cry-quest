@@ -1,0 +1,33 @@
+{
+  "title": "秀吉の花押鍵",
+  "storyLead": "記号は地名を消し、景色だけを残した。",
+  "clueLines": [
+    "折れ桐 -> 丸鐘 -> 土盛印",
+    "矢羽を添え、縦門の前に立て",
+    "灯柱の影が石垣を切る位置を見よ"
+  ],
+  "candidates": [
+    {
+      "id": "kyomizu_area",
+      "label": "東山・清水寺周辺",
+      "summary": "観光導線は強いが、鐘と塚の同時条件が弱い",
+      "isAnswer": false
+    },
+    {
+      "id": "nijo_area",
+      "label": "二条城周辺",
+      "summary": "門と石垣はあるが、旧臣暗号の記号列と不整合",
+      "isAnswer": false
+    },
+    {
+      "id": "toyokuni_cluster",
+      "label": "豊国神社・方広寺・耳塚の圏域",
+      "summary": "鐘・塚・門前の条件が最も一致する",
+      "isAnswer": true
+    }
+  ],
+  "hints": {
+    "level1": "鐘と塚が同時に成立する圏域を優先せよ。",
+    "level2": "豊国神社・方広寺・耳塚の三点を一つの面で見よ。"
+  }
+}

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" fill="none">
+  <style>
+    :root {
+      --unlock-core: #7ef9de;
+      --unlock-wave: #35d6ff;
+      --unlock-line: #d5f9ff;
+    }
+  </style>
+  <defs>
+    <radialGradient id="core" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="var(--unlock-core)" />
+      <stop offset="100%" stop-color="#0ca3d4" />
+    </radialGradient>
+  </defs>
+  <circle cx="160" cy="160" r="46" fill="url(#core)" />
+  <circle cx="160" cy="160" r="86" stroke="var(--unlock-wave)" stroke-opacity="0.7" stroke-width="8" />
+  <circle cx="160" cy="160" r="114" stroke="var(--unlock-wave)" stroke-opacity="0.35" stroke-width="6" />
+  <g stroke="var(--unlock-line)" stroke-width="6" stroke-linecap="round">
+    <path d="M160 22V62" />
+    <path d="M160 258V298" />
+    <path d="M22 160H62" />
+    <path d="M258 160H298" />
+    <path d="M65 65L92 92" />
+    <path d="M228 228L255 255" />
+    <path d="M255 65L228 92" />
+    <path d="M92 228L65 255" />
+  </g>
+</svg>

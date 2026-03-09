@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" fill="none">
+  <style>
+    :root {
+      --shard-core: #f9c851;
+      --shard-edge: #ffedb0;
+      --shard-shadow: #7a4f10;
+    }
+  </style>
+  <defs>
+    <radialGradient id="g" cx="50%" cy="45%" r="55%">
+      <stop offset="0%" stop-color="var(--shard-edge)" />
+      <stop offset="75%" stop-color="var(--shard-core)" />
+      <stop offset="100%" stop-color="#b67a1b" />
+    </radialGradient>
+    <filter id="f" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" />
+    </filter>
+  </defs>
+  <circle cx="160" cy="160" r="104" fill="#ffd979" fill-opacity="0.2" filter="url(#f)" />
+  <path d="M160 30L234 108L202 264L118 264L86 108L160 30Z" fill="url(#g)" stroke="var(--shard-shadow)" stroke-width="8" />
+  <path d="M160 30V264M86 108L234 108" stroke="var(--shard-edge)" stroke-opacity="0.6" stroke-width="6" />
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320" fill="none">
+  <style>
+    :root {
+      --payout-a: #f7f17c;
+      --payout-b: #ff7a5e;
+      --payout-c: #ffc9a2;
+    }
+  </style>
+  <defs>
+    <radialGradient id="coin" cx="50%" cy="45%" r="56%">
+      <stop offset="0%" stop-color="var(--payout-a)" />
+      <stop offset="60%" stop-color="var(--payout-c)" />
+      <stop offset="100%" stop-color="var(--payout-b)" />
+    </radialGradient>
+  </defs>
+  <circle cx="160" cy="160" r="124" fill="#ffef9c" fill-opacity="0.25" />
+  <circle cx="160" cy="160" r="96" fill="url(#coin)" />
+  <path d="M104 160H216M160 104V216" stroke="#7a4114" stroke-width="14" stroke-linecap="round" />
+  <circle cx="160" cy="160" r="100" stroke="#7a4114" stroke-opacity="0.45" stroke-width="6" />
+</svg>

@@ -1,0 +1,10 @@
+{
+  "quests": {
+    "0x0900000000000000000000000000000000000000000000000000000000000009": {
+      "puzzleAttempts": 0,
+      "puzzleSolved": false,
+      "checkAttempts": 0,
+      "forcedSuccess": false
+    }
+  }
+}

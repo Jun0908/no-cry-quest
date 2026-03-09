@@ -1,0 +1,33 @@
+{
+  "name": "remotion-elevenlabs-template",
+  "version": "1.0.0",
+  "description": "Remotion video template with ElevenLabs narration",
+  "scripts": {
+    "start": "npx remotion studio",
+    "build": "npx remotion render MainVideo out/video.mp4",
+    "voices": "tsx scripts/generateVoices.ts",
+    "voices:force": "tsx scripts/generateVoices.ts --force",
+    "shadow:mvp": "tsx scripts/runShadowingMvp.ts",
+    "automate": "tsx scripts/automate.ts"
+  },
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.38.0",
+    "@remotion/cli": "4.0.433",
+    "@remotion/media-utils": "4.0.433",
+    "axios": "^1.13.6",
+    "dotenv": "^17.3.1",
+    "elevenlabs": "^1.59.0",
+    "music-metadata": "^11.12.1",
+    "openai": "^6.27.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.433"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.3"
+  }
+}

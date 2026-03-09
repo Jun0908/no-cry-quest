@@ -1,0 +1,44 @@
+[
+  {
+    "id": "kao_001",
+    "symbol": "折れ桐",
+    "category": "kao",
+    "meaning": "豊国域"
+  },
+  {
+    "id": "kao_002",
+    "symbol": "弓波",
+    "category": "kao",
+    "meaning": "河畔"
+  },
+  {
+    "id": "kamon_001",
+    "symbol": "丸鐘",
+    "category": "kamon",
+    "meaning": "鐘"
+  },
+  {
+    "id": "kamon_002",
+    "symbol": "土盛印",
+    "category": "kamon",
+    "meaning": "塚"
+  },
+  {
+    "id": "kamon_003",
+    "symbol": "縦門",
+    "category": "kamon",
+    "meaning": "鳥居"
+  },
+  {
+    "id": "jisha_001",
+    "symbol": "矢羽",
+    "category": "jisha",
+    "meaning": "東南東を向く"
+  },
+  {
+    "id": "jisha_002",
+    "symbol": "灯柱",
+    "category": "jisha",
+    "meaning": "灯籠を基準にする"
+  }
+]
