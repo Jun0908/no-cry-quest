@@ -5,7 +5,8 @@ import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 
 const nav = [
-  { href: "/final", label: "Final" },
+  { href: "/zanei", label: "Zanei (Game)" },
+  { href: "/final", label: "Final (Debug)" },
   { href: "/chat", label: "Chat" },
   { href: "/quest", label: "Quest" },
   { href: "/unlock", label: "Unlock" },
@@ -31,9 +32,8 @@ export function AppShell({ title, children }: { title: string; children: React.R
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-full border px-4 py-2 text-sm transition ${
-                active ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:border-slate-500"
-              }`}
+              className={`rounded-full border px-4 py-2 text-sm transition ${active ? "border-slate-900 bg-slate-900 text-white" : "border-slate-300 bg-white text-slate-700 hover:border-slate-500"
+                }`}
             >
               {item.label}
             </Link>

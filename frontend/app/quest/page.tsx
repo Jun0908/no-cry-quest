@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { AppShell, Panel, Pill } from "@/app/_components/shell";
 import { readFlowState, writeFlowState } from "@/app/_components/flow-state";
@@ -11,7 +11,7 @@ type ProofItem = {
   receivedAt: string;
 };
 
-export default function QuestPage() {
+function QuestPageInner() {
   const search = useSearchParams();
   const flow = useMemo(() => readFlowState(), []);
   const initialQuestId = search.get("questId") || flow.questId || "0xquest-demo";
@@ -154,5 +154,13 @@ export default function QuestPage() {
         </Panel>
       </div>
     </AppShell>
+  );
+}
+
+export default function QuestPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <QuestPageInner />
+    </Suspense>
   );
 }
