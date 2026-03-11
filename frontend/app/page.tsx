@@ -12,7 +12,7 @@ export default function Home() {
         <div className="grid gap-4 md:grid-cols-2">
           <Link className="rounded-2xl border border-slate-200 bg-white/85 p-6 hover:border-slate-400" href="/final">
             <h2 className="text-xl font-semibold">Final Scene Demo</h2>
-            <p className="mt-2 text-sm text-slate-600">Shibuya固定で3/4から最後の1鍵だけ操作</p>
+            <p className="mt-2 text-sm text-slate-600">Sepolia固定で3/4から最後の1鍵だけ操作</p>
           </Link>
           <Link className="rounded-2xl border border-slate-200 bg-white/85 p-6 hover:border-slate-400" href="/chat">
             <h2 className="text-xl font-semibold">1. Chat</h2>

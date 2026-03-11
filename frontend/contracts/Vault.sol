@@ -14,8 +14,7 @@ contract Vault {
     struct Quest {
         address creator;
         uint256 deposit;
-        address[] recipients;
-        uint256[] amounts;
+        address winner;   // set when final shard is submitted
         uint256 deadline; // unix timestamp
         bool verified;
         bool unlocked;
@@ -57,8 +56,9 @@ contract Vault {
     event ProofSubmitted(bytes32 indexed questId, bytes32 proofHash, address indexed submitter);
     event QuestVerified(bytes32 indexed questId, address indexed oracle, bytes32 proofHash, uint256 nonce);
     event ShardSubmitted(bytes32 indexed questId, address indexed by);
+    event WinnerRecorded(bytes32 indexed questId, address indexed winner);
     event Unlocked(bytes32 indexed questId, bytes32 unlockProofHash, uint256 nonce);
-    event PayoutExecuted(bytes32 indexed questId);
+    event PayoutExecuted(bytes32 indexed questId, address indexed winner, uint256 amount);
     event Expired(bytes32 indexed questId);
 
     constructor(address _oracle) {
@@ -72,27 +72,16 @@ contract Vault {
         oracle = _oracle;
     }
 
-    // create a quest and deposit funds equal to sum(amounts)
-    function createQuest(bytes32 questId, address[] calldata recipients, uint256[] calldata amounts, uint256 deadline) external payable {
+    // Step 1: create a quest (no ETH needed here)
+    function createQuest(bytes32 questId, uint256 deadline) external {
         require(!questExists[questId], "quest exists");
-        require(recipients.length > 0, "no recipients");
-        require(recipients.length == amounts.length, "len mismatch");
         require(deadline > block.timestamp, "invalid deadline");
-
-        uint256 total = 0;
-        for (uint256 i = 0; i < amounts.length; i++) {
-            require(recipients[i] != address(0), "zero recipient");
-            require(amounts[i] > 0, "zero amount");
-            total += amounts[i];
-        }
-        require(msg.value == total, "deposit mismatch");
 
         Quest storage q = quests[questId];
         q.creator = msg.sender;
-        q.deposit = msg.value;
+        q.deposit = 0;
         q.deadline = deadline;
-        q.recipients = recipients;
-        q.amounts = amounts;
+        q.winner = address(0);
         q.verified = false;
         q.unlocked = false;
         q.paid = false;
@@ -102,6 +91,16 @@ contract Vault {
 
         questExists[questId] = true;
 
+        emit Deposited(questId, msg.sender, 0);
+    }
+
+    // Step 2: deposit prize ETH separately (VALUE フィールドに金額を入れて呼び出す)
+    function fund(bytes32 questId) external payable {
+        require(questExists[questId], "no quest");
+        require(msg.value > 0, "send ETH to fund");
+        Quest storage q = quests[questId];
+        require(!q.paid, "already paid");
+        q.deposit += msg.value;
         emit Deposited(questId, msg.sender, msg.value);
     }
 
@@ -133,7 +132,7 @@ contract Vault {
         emit QuestVerified(questId, signer, proofHash, nonce);
     }
 
-    // participants submit their shard (shard content ignored on-chain)
+    // participants submit their shard — the person who submits the final shard becomes the winner
     function submitShard(bytes32 questId) external {
         require(questExists[questId], "no quest");
         Quest storage q = quests[questId];
@@ -146,7 +145,9 @@ contract Vault {
         emit ShardSubmitted(questId, msg.sender);
 
         if (q.shardCount >= REQUIRED_SHARDS) {
+            q.winner = msg.sender; // the player who submits the final shard wins
             q.unlocked = true;
+            emit WinnerRecorded(questId, msg.sender);
         }
     }
 
@@ -176,16 +177,14 @@ contract Vault {
         Quest storage q = quests[questId];
         require(q.unlocked, "not unlocked");
         require(!q.paid, "already paid");
+        require(q.winner != address(0), "no winner recorded");
 
-        // perform payouts
-        for (uint256 i = 0; i < q.recipients.length; i++) {
-            address to = q.recipients[i];
-            uint256 amount = q.amounts[i];
-            (bool ok, ) = to.call{value: amount}("");
-            require(ok, "transfer failed");
-        }
+        uint256 amount = q.deposit;
         q.paid = true;
-        emit PayoutExecuted(questId);
+        (bool ok, ) = q.winner.call{value: amount}("");
+        require(ok, "transfer failed");
+
+        emit PayoutExecuted(questId, q.winner, amount);
     }
 
     // expire and refund (only creator can trigger after deadline and if not verified/unlocked)
@@ -206,10 +205,10 @@ contract Vault {
         emit Expired(questId);
     }
 
-    // helper to get quest recipients/amounts
-    function getRecipients(bytes32 questId) external view returns (address[] memory, uint256[] memory) {
+    // helper to get quest winner and deposit
+    function getWinner(bytes32 questId) external view returns (address winner, uint256 deposit) {
         Quest storage q = quests[questId];
-        return (q.recipients, q.amounts);
+        return (q.winner, q.deposit);
     }
 
     function domainSeparator() external view returns (bytes32) {

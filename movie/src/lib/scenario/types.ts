@@ -1,7 +1,9 @@
 export interface SceneDefinition {
     id: string;
-    text: string;
-    narration: string;
+    textOverlay?: {
+        text: string;
+        animation?: string;
+    };
     imagePrompt: string;
 }
 

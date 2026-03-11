@@ -1,18 +1,18 @@
 import { ethers } from "ethers";
 
-export const SHIBUYA_CHAIN_ID = 81;
-export const SHIBUYA_HEX_CHAIN_ID = "0x51";
+export const SEPOLIA_CHAIN_ID = 11155111;
+export const SEPOLIA_HEX_CHAIN_ID = "0xaa36a7";
 
-export const SHIBUYA_CHAIN_PARAMS = {
-  chainId: SHIBUYA_HEX_CHAIN_ID,
-  chainName: "Astar Shibuya Testnet",
+export const SEPOLIA_CHAIN_PARAMS = {
+  chainId: SEPOLIA_HEX_CHAIN_ID,
+  chainName: "Sepolia test network",
   nativeCurrency: {
-    name: "SBY",
-    symbol: "SBY",
+    name: "SepoliaETH",
+    symbol: "SEP",
     decimals: 18,
   },
-  rpcUrls: ["https://rpc.shibuya.astar.network:8545"],
-  blockExplorerUrls: ["https://shibuya.subscan.io"],
+  rpcUrls: ["https://rpc.sepolia.org"],
+  blockExplorerUrls: ["https://sepolia.etherscan.io"],
 };
 
 export const DEMO_QUEST_ID = process.env.NEXT_PUBLIC_DEMO_QUEST_ID || "0x0900000000000000000000000000000000000000000000000000000000000009";
@@ -27,6 +27,6 @@ export function createDemoProofHash(questId: string) {
   return ethers.keccak256(ethers.toUtf8Bytes(`final-scene:${questId}:verified`));
 }
 
-export function getAstarExplorerTxUrl(txHash: string) {
-  return `https://shibuya.subscan.io/extrinsic/${txHash}`;
+export function getExplorerTxUrl(txHash: string) {
+  return `https://sepolia.etherscan.io/tx/${txHash}`;
 }

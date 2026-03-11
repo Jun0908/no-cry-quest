@@ -26,14 +26,15 @@ export class OpenAiImageProvider implements ImageGenerationProvider {
             style: options.style ?? "vivid",
         });
 
-        const url = response.data[0]?.url;
+        const rawResponse = response as any;
+        const url = rawResponse.data[0]?.url;
         if (!url) {
             throw new Error("No image URL returned from OpenAI.");
         }
 
         return {
             url,
-            revisedPrompt: response.data[0]?.revised_prompt,
+            revisedPrompt: rawResponse.data[0]?.revised_prompt,
         };
     }
 }

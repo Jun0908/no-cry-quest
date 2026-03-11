@@ -10,9 +10,9 @@ import {
     GoldDivider,
     TextSm,
 } from "@/app/_components/GameShell";
-import { connectWallet, switchToShibuya } from "@/app/_components/wallet";
+import { connectWallet, switchToSepolia } from "@/app/_components/wallet";
 import { readFlowState, writeFlowState } from "@/app/_components/flow-state";
-import { DEMO_QUEST_ID, getAstarExplorerTxUrl, SHIBUYA_CHAIN_ID } from "@/lib/finalSceneDemo";
+import { DEMO_QUEST_ID, getExplorerTxUrl, SEPOLIA_CHAIN_ID } from "@/lib/finalSceneDemo";
 import { resolveTask10Mode, type Task10Mode } from "@/lib/task10Config";
 import Image from "next/image";
 
@@ -89,7 +89,7 @@ export default function ZaneiPage() {
     /* wallet / chain */
     const [wallet, setWallet] = useState("");
     const [chainId, setChainId] = useState(Number(flow.chainId || 0));
-    const chainOk = chainId === SHIBUYA_CHAIN_ID;
+    const chainOk = chainId === SEPOLIA_CHAIN_ID;
 
     /* quest ids */
     const [questId] = useState(flow.questId || DEMO_QUEST_ID);
@@ -127,6 +127,11 @@ export default function ZaneiPage() {
     const [opStatus, setOpStatus] = useState("");
     const [error, setError] = useState("");
     const [movieEnded, setMovieEnded] = useState(false);
+    const [movieEnded1, setMovieEnded1] = useState(false);
+    const [movieEnded2, setMovieEnded2] = useState(false);
+    const [movieEnded3, setMovieEnded3] = useState(false);
+    const [movieEnded4, setMovieEnded4] = useState(false);
+    const [movieEnded5, setMovieEnded5] = useState(false);
 
     /* derived */
     const threshold = session?.threshold || 4;
@@ -175,8 +180,8 @@ export default function ZaneiPage() {
         try { const { address, chainId: c } = await connectWallet(); setWallet(address); setChainId(c); writeFlowState({ chainId: c }); setError(""); }
         catch (e) { setError(e instanceof Error ? e.message : "connect_failed"); }
     }
-    async function onSwitchShibuya() {
-        try { await switchToShibuya(); await onConnect(); }
+    async function onSwitchSepolia() {
+        try { await switchToSepolia(); await onConnect(); }
         catch (e) { setError(e instanceof Error ? e.message : "switch_failed"); }
     }
     async function bootstrap() {
@@ -187,7 +192,7 @@ export default function ZaneiPage() {
             const j = (await r.json()) as { ok: boolean; error?: string; sessionId?: string; finalPlayerShare?: string };
             if (!j.ok || !j.sessionId || !j.finalPlayerShare) throw new Error(j.error || "bootstrap_failed");
             setSessionId(j.sessionId); setFinalShare(j.finalPlayerShare); setNonce(String(Math.floor(Date.now() / 1000)));
-            writeFlowState({ questId, shamirSessionId: j.sessionId, contractAddress, chainId: SHIBUYA_CHAIN_ID, task10Mode: mode });
+            writeFlowState({ questId, shamirSessionId: j.sessionId, contractAddress, chainId: SEPOLIA_CHAIN_ID, task10Mode: mode });
             setOpStatus("3/4 鍵がセットされました"); setError(""); await refresh();
         } catch (e) { setError(e instanceof Error ? e.message : "bootstrap_failed"); setOpStatus(""); }
     }
@@ -273,14 +278,14 @@ export default function ZaneiPage() {
         try {
             if (!sessionId || !contractAddress || !chainOk || !ready || !task10Unlockable) throw new Error("解錠条件が揃っていません");
             setOpStatus("解錠準備中…");
-            const pr = await fetch(`/api/shamir/sessions/${sessionId}/reconstruct`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chainId: SHIBUYA_CHAIN_ID, contractAddress, nonce: Number(nonce) }) });
+            const pr = await fetch(`/api/shamir/sessions/${sessionId}/reconstruct`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chainId: SEPOLIA_CHAIN_ID, contractAddress, nonce: Number(nonce) }) });
             const pl = (await pr.json()) as { ok: boolean; error?: string; tx?: { to: string; data: string } };
             if (!pl.ok || !pl.tx) throw new Error(pl.error || "reconstruct_failed");
             setOpStatus("トランザクション送信中…");
             const { signer } = await connectWallet();
             const tx = await signer.sendTransaction({ to: pl.tx.to, data: pl.tx.data });
             setUnlockTxHash(tx.hash);
-            writeFlowState({ lastTxHash: tx.hash, questId, contractAddress, shamirSessionId: sessionId, chainId: SHIBUYA_CHAIN_ID, task10Mode: mode });
+            writeFlowState({ lastTxHash: tx.hash, questId, contractAddress, shamirSessionId: sessionId, chainId: SEPOLIA_CHAIN_ID, task10Mode: mode });
             const rc = await tx.wait();
             if (rc?.status !== 1) throw new Error("unlock_tx_reverted");
             setOpStatus("✓ 解錠完了"); setError(""); await refresh();
@@ -294,7 +299,7 @@ export default function ZaneiPage() {
             const contract = new ethers.Contract(contractAddress, ["function payout(bytes32 questId)"], signer);
             const tx = await contract.payout(questId);
             setPayoutTxHash(tx.hash);
-            writeFlowState({ lastTxHash: tx.hash, questId, contractAddress, chainId: SHIBUYA_CHAIN_ID, task10Mode: mode });
+            writeFlowState({ lastTxHash: tx.hash, questId, contractAddress, chainId: SEPOLIA_CHAIN_ID, task10Mode: mode });
             const rc = await tx.wait();
             if (rc?.status !== 1) throw new Error("payout_tx_reverted");
             setOpStatus("✓ 継承完了"); setError("");
@@ -328,7 +333,7 @@ export default function ZaneiPage() {
                 </div>
                 {/* Status badges top-right */}
                 <div className="absolute right-3 top-3 flex flex-col gap-1 items-end">
-                    <StatusBadge ok={chainOk} text={chainOk ? "Shibuya" : "未接続"} />
+                    <StatusBadge ok={chainOk} text={chainOk ? "Sepolia" : "未接続"} />
                     <StatusBadge ok={ready} text={`鍵 ${submittedCount}/${threshold}`} />
                 </div>
             </div>
@@ -354,7 +359,7 @@ export default function ZaneiPage() {
                 <div className="relative mb-4 overflow-hidden rounded-xl" style={{ background: "rgba(0,0,0,0.5)", minHeight: 120 }}>
                     <video
                         className="w-full rounded-xl"
-                        src="/zanei/movie/intro.mp4"
+                        src="/zanei/movie/01-intro.mp4"
                         playsInline
                         controls
                         onEnded={() => setMovieEnded(true)}
@@ -381,7 +386,7 @@ export default function ZaneiPage() {
                 <p className="mb-3 text-xs tracking-widest" style={{ color: "rgba(201,150,42,0.7)" }}>— WALLET —</p>
                 <div className="grid grid-cols-2 gap-2">
                     <GoldButton variant="secondary" onClick={onConnect}>ウォレット接続</GoldButton>
-                    <GoldButton variant="ghost" onClick={onSwitchShibuya}>Shibuya切替</GoldButton>
+                    <GoldButton variant="ghost" onClick={onSwitchSepolia}>Sepolia切替</GoldButton>
                 </div>
                 {wallet && (
                     <p className="mt-2 text-center text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{shortHash(wallet)}</p>
@@ -407,6 +412,31 @@ export default function ZaneiPage() {
 
             {/* ════ PHASE 1: CIPHER PUZZLE ════ */}
             <PhaseCard phase={1} currentPhase={phase} icon={PHASES[1].icon} title={PHASES[1].label} done={phase > 1}>
+                {/* Video player for Phase 1 */}
+                <div className="relative mb-4 overflow-hidden rounded-xl" style={{ background: "rgba(0,0,0,0.5)", minHeight: 120 }}>
+                    <video
+                        className="w-full rounded-xl"
+                        src="/zanei/movie/02-cipher.mp4"
+                        playsInline
+                        controls
+                        onEnded={() => setMovieEnded1(true)}
+                        onError={() => setMovieEnded1(true)}
+                        style={{ display: "block" }}
+                    />
+                    {!movieEnded1 && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ background: "rgba(0,0,0,0.6)" }}>
+                            <p className="text-xs" style={{ color: "rgba(201,150,42,0.7)" }}>動画が再生されない場合</p>
+                            <button
+                                onClick={() => setMovieEnded1(true)}
+                                className="text-xs px-4 py-2 rounded-lg"
+                                style={{ background: "rgba(201,150,42,0.2)", color: "#c9962a", border: "1px solid rgba(201,150,42,0.4)" }}
+                            >
+                                スキップして進む
+                            </button>
+                        </div>
+                    )}
+                </div>
+
                 <div className="mb-4 rounded-xl p-4" style={{ background: "rgba(201,150,42,0.06)", border: "1px solid rgba(201,150,42,0.2)" }}>
                     <p className="mb-1 text-sm font-semibold" style={{ color: "#c9962a" }}>{puzzle?.title || "秀吉の花押鍵"}</p>
                     <TextSm>{puzzle?.storyLead}</TextSm>
@@ -471,6 +501,31 @@ export default function ZaneiPage() {
                 <TextSm>豊国神社周辺（半径120m）へ向かい、正しい方向と視点で封印を解け。</TextSm>
                 <GoldDivider />
 
+                {/* Video player for Phase 2 */}
+                <div className="relative mb-4 overflow-hidden rounded-xl" style={{ background: "rgba(0,0,0,0.5)", minHeight: 120 }}>
+                    <video
+                        className="w-full rounded-xl"
+                        src="/zanei/movie/03-location.mp4"
+                        playsInline
+                        controls
+                        onEnded={() => setMovieEnded2(true)}
+                        onError={() => setMovieEnded2(true)}
+                        style={{ display: "block" }}
+                    />
+                    {!movieEnded2 && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ background: "rgba(0,0,0,0.6)" }}>
+                            <p className="text-xs" style={{ color: "rgba(201,150,42,0.7)" }}>動画が再生されない場合</p>
+                            <button
+                                onClick={() => setMovieEnded2(true)}
+                                className="text-xs px-4 py-2 rounded-lg"
+                                style={{ background: "rgba(201,150,42,0.2)", color: "#c9962a", border: "1px solid rgba(201,150,42,0.4)" }}
+                            >
+                                スキップして進む
+                            </button>
+                        </div>
+                    )}
+                </div>
+
                 {/* GPS / orientation data */}
                 <div className="mb-4 grid grid-cols-2 gap-2">
                     {[
@@ -528,6 +583,31 @@ export default function ZaneiPage() {
                 <TextSm>最後の鍵を提出し、4枚のシャードを揃えよ。</TextSm>
                 <GoldDivider />
 
+                {/* Video player for Phase 3 */}
+                <div className="relative mb-4 overflow-hidden rounded-xl" style={{ background: "rgba(0,0,0,0.5)", minHeight: 120 }}>
+                    <video
+                        className="w-full rounded-xl"
+                        src="/zanei/movie/04-key.mp4"
+                        playsInline
+                        controls
+                        onEnded={() => setMovieEnded3(true)}
+                        onError={() => setMovieEnded3(true)}
+                        style={{ display: "block" }}
+                    />
+                    {!movieEnded3 && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ background: "rgba(0,0,0,0.6)" }}>
+                            <p className="text-xs" style={{ color: "rgba(201,150,42,0.7)" }}>動画が再生されない場合</p>
+                            <button
+                                onClick={() => setMovieEnded3(true)}
+                                className="text-xs px-4 py-2 rounded-lg"
+                                style={{ background: "rgba(201,150,42,0.2)", color: "#c9962a", border: "1px solid rgba(201,150,42,0.4)" }}
+                            >
+                                スキップして進む
+                            </button>
+                        </div>
+                    )}
+                </div>
+
                 {/* Shard progress visual */}
                 <div className="mb-4 flex justify-center gap-3">
                     {Array.from({ length: threshold }).map((_, i) => (
@@ -568,9 +648,34 @@ export default function ZaneiPage() {
                 <TextSm>4枚のシャードが揃った。Vaultの封印を解錠せよ。</TextSm>
                 <GoldDivider />
 
+                {/* Video player for Phase 4 */}
+                <div className="relative mb-4 overflow-hidden rounded-xl" style={{ background: "rgba(0,0,0,0.5)", minHeight: 120 }}>
+                    <video
+                        className="w-full rounded-xl"
+                        src="/zanei/movie/05-unlock.mp4"
+                        playsInline
+                        controls
+                        onEnded={() => setMovieEnded4(true)}
+                        onError={() => setMovieEnded4(true)}
+                        style={{ display: "block" }}
+                    />
+                    {!movieEnded4 && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ background: "rgba(0,0,0,0.6)" }}>
+                            <p className="text-xs" style={{ color: "rgba(201,150,42,0.7)" }}>動画が再生されない場合</p>
+                            <button
+                                onClick={() => setMovieEnded4(true)}
+                                className="text-xs px-4 py-2 rounded-lg"
+                                style={{ background: "rgba(201,150,42,0.2)", color: "#c9962a", border: "1px solid rgba(201,150,42,0.4)" }}
+                            >
+                                スキップして進む
+                            </button>
+                        </div>
+                    )}
+                </div>
+
                 {/* All-check badges */}
                 <div className="mb-4 flex flex-wrap gap-2">
-                    <StatusBadge ok={chainOk} text="Shibuya" />
+                    <StatusBadge ok={chainOk} text="Sepolia" />
                     <StatusBadge ok={ready} text={`鍵 ${submittedCount}/${threshold}`} />
                     <StatusBadge ok={task10Unlockable} text="判定 OK" />
                     <StatusBadge ok={Boolean(contractAddress)} text="Contract" />
@@ -585,8 +690,8 @@ export default function ZaneiPage() {
                         <div className="text-5xl mb-3" style={{ animation: "pulse 2s infinite", filter: "drop-shadow(0 0 16px gold)" }}>🏮</div>
                         <p className="text-sm font-semibold" style={{ color: "#60d080" }}>封印が解かれた</p>
                         <p className="mt-1 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{shortHash(unlockTxHash)}</p>
-                        <a href={getAstarExplorerTxUrl(unlockTxHash)} target="_blank" rel="noreferrer" className="mt-2 text-xs underline" style={{ color: "rgba(201,150,42,0.7)" }}>
-                            Subscanで確認 →
+                        <a href={getExplorerTxUrl(unlockTxHash)} target="_blank" rel="noreferrer" className="mt-2 text-xs underline" style={{ color: "rgba(201,150,42,0.7)" }}>
+                            Etherscanで確認 →
                         </a>
                     </div>
                 ) : null}
@@ -613,13 +718,38 @@ export default function ZaneiPage() {
                 <TextSm>鍵が開き、継承物が解放された。誓紙と継承印をオンチェーンで受け取れ。</TextSm>
                 <GoldDivider />
 
+                {/* Video player for Phase 5 */}
+                <div className="relative mb-4 overflow-hidden rounded-xl" style={{ background: "rgba(0,0,0,0.5)", minHeight: 120 }}>
+                    <video
+                        className="w-full rounded-xl"
+                        src="/zanei/movie/06-payout.mp4"
+                        playsInline
+                        controls
+                        onEnded={() => setMovieEnded5(true)}
+                        onError={() => setMovieEnded5(true)}
+                        style={{ display: "block" }}
+                    />
+                    {!movieEnded5 && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3" style={{ background: "rgba(0,0,0,0.6)" }}>
+                            <p className="text-xs" style={{ color: "rgba(201,150,42,0.7)" }}>動画が再生されない場合</p>
+                            <button
+                                onClick={() => setMovieEnded5(true)}
+                                className="text-xs px-4 py-2 rounded-lg"
+                                style={{ background: "rgba(201,150,42,0.2)", color: "#c9962a", border: "1px solid rgba(201,150,42,0.4)" }}
+                            >
+                                スキップして進む
+                            </button>
+                        </div>
+                    )}
+                </div>
+
                 {paid && (
                     <div className="mb-4 rounded-xl p-3" style={{ background: "rgba(40,120,60,0.15)", border: "1px solid rgba(60,180,80,0.3)" }}>
                         <p className="text-sm font-semibold text-center" style={{ color: "#60d080" }}>✓ 継承が完了した</p>
                         <p className="mt-1 text-center text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{shortHash(payoutTxHash)}</p>
                         <div className="mt-2 text-center">
-                            <a href={getAstarExplorerTxUrl(payoutTxHash)} target="_blank" rel="noreferrer" className="text-xs underline" style={{ color: "rgba(201,150,42,0.7)" }}>
-                                Subscanで確認 →
+                            <a href={getExplorerTxUrl(payoutTxHash)} target="_blank" rel="noreferrer" className="text-xs underline" style={{ color: "rgba(201,150,42,0.7)" }}>
+                                Etherscanで確認 →
                             </a>
                         </div>
                     </div>
@@ -656,7 +786,7 @@ export default function ZaneiPage() {
             {/* ── Bottom note ── */}
             <div className="mt-8 text-center">
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>
-                    残影 ZANEI · Astar Shibuya Testnet
+                    残影 ZANEI · Sepolia Testnet
                 </p>
                 <button onClick={refresh} className="mt-1 text-xs underline" style={{ color: "rgba(201,150,42,0.3)" }}>
                     状態を同期

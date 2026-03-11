@@ -5,6 +5,45 @@
       "puzzleSolved": false,
       "checkAttempts": 0,
       "forcedSuccess": false
+    },
+    "0xquest-demo": {
+      "puzzleAttempts": 1,
+      "puzzleSolved": true,
+      "checkAttempts": 1,
+      "forcedSuccess": true,
+      "lastCheck": {
+        "at": "2026-03-11T06:10:10.155Z",
+        "mode": "current_location",
+        "unlockable": false,
+        "checks": {
+          "puzzle": true,
+          "position": false,
+          "heading": false,
+          "pitch": false,
+          "view": false
+        },
+        "detail": {
+          "mode": "current_location",
+          "position": {
+            "reason": "location_missing"
+          },
+          "heading": {
+            "target": 118,
+            "tolerance": 20,
+            "diff": null
+          },
+          "pitch": {
+            "target": 4,
+            "tolerance": 14,
+            "diff": null
+          },
+          "view": {
+            "score": 0,
+            "threshold": 0.72,
+            "photoProvided": false
+          }
+        }
+      }
     }
   }
 }

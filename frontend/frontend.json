@@ -1,0 +1,96 @@
+{
+  "projectInfo": {
+    "projectName": "hiden-game-ui-movies",
+    "fps": 30,
+    "durationInFramesPerClip": 150,
+    "width": 1080,
+    "height": 1920,
+    "theme": "cinematic_dark_fantasy"
+  },
+  "scenes": [
+    {
+      "id": "01-intro",
+      "phase": "Intro",
+      "imagePrompt": "Cinematic dark fantasy, a mysterious ancient invitation letter resting on a wooden desk, faintly glowing gold runes, dramatic lighting, 8k, photorealistic --ar 9:16",
+      "videoPrompt": "Camera slowly zooms in on a mysterious ancient invitation letter on a desk, dust particles floating in a faint light beam.",
+      "textOverlay": {
+        "text": "THE HIDEN GAME\n準備はいいか？",
+        "animation": "fade-in-slow"
+      },
+      "audio": {
+        "bgm": "dark_suspense_intro.mp3",
+        "se": "heartbeat_deep.wav"
+      }
+    },
+    {
+      "id": "02-cipher",
+      "phase": "Cipher",
+      "imagePrompt": "A futuristic complex mechanical cryptex floating in mid-air, glowing cyber-blue gears and holographic numbers, dark background, cinematic lighting --ar 9:16",
+      "videoPrompt": "Glowing cyber-blue gears of a floating cryptex are slowly turning, holographic numbers changing rapidly.",
+      "textOverlay": {
+        "text": "暗号を解読せよ",
+        "animation": "glitch"
+      },
+      "audio": {
+        "bgm": "cyber_ambient_loop.mp3",
+        "se": "mechanical_clicks.wav"
+      }
+    },
+    {
+      "id": "03-location",
+      "phase": "Location",
+      "imagePrompt": "A highly detailed 3D holographic map of a dark cyberpunk city glowing in neon green, a specific coordinate marked with a bright pulsing pin, intense depth of field --ar 9:16",
+      "videoPrompt": "Camera slowly rotates around a glowing neon green 3D holographic map, focusing on a brightly pulsing pin.",
+      "textOverlay": {
+        "text": "座標特定\n［LOCATION FOUND］",
+        "animation": "typewriter"
+      },
+      "audio": {
+        "bgm": "cyber_ambient_loop.mp3",
+        "se": "digital_scan_ping.wav"
+      }
+    },
+    {
+      "id": "04-key",
+      "phase": "Key",
+      "imagePrompt": "An intricately designed antique key with glowing cyber-blue circuits, levitating above an obsidian pedestal, magical particles floating around, dark cinematic vibe --ar 9:16",
+      "videoPrompt": "An intricately designed key levitates slowly above a pedestal, with glowing cyber-blue particles floating beautifully around it.",
+      "textOverlay": {
+        "text": "アクセスキー獲得",
+        "animation": "slide-up-fade"
+      },
+      "audio": {
+        "bgm": "mystical_choir_pad.mp3",
+        "se": "magical_chime.wav"
+      }
+    },
+    {
+      "id": "05-unlock",
+      "phase": "Unlock",
+      "imagePrompt": "A massive heavy vault door in a dark mysterious cavern, a glowing key inserted into the keyhole, blinding warm light leaking from the opening cracks --ar 9:16",
+      "videoPrompt": "The glowing key turns in the heavy vault door, unlocking with a heavy clank, and the door slowly opens revealing blinding bright light.",
+      "textOverlay": {
+        "text": "システム・アンロック",
+        "animation": "flash-bang"
+      },
+      "audio": {
+        "bgm": "triumphant_build_up.mp3",
+        "se": "heavy_metal_door_open.wav"
+      }
+    },
+    {
+      "id": "06-payout",
+      "phase": "Payout",
+      "imagePrompt": "An explosion of glowing golden crypto coins and brilliant gems, flying out of the darkness towards the camera, extreme high detail, cinematic treasure lighting --ar 9:16",
+      "videoPrompt": "A massive amount of glowing golden coins and gems explode slowly towards the camera from the darkness in a dazzling display of light.",
+      "textOverlay": {
+        "text": "REWARD CLAIMED",
+        "animation": "scale-up-bounce"
+      },
+      "audio": {
+        "bgm": "epic_orchestral_climax.mp3",
+        "se": "coin_shower_sparkle.wav"
+      }
+    }
+  ]
+}

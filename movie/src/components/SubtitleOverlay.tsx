@@ -26,21 +26,12 @@ export const SubtitleOverlay: React.FC<Props> = ({ line }) => {
       }}
     >
       <div style={{ opacity, textAlign: "center", maxWidth: "80%" }}>
-        {line.chapter && (
-          <div
-            style={{
-              fontSize: 28,
-              fontWeight: 700,
-              color: "#FFD700",
-              marginBottom: 8,
-              fontFamily: "sans-serif",
-              textShadow: "0 2px 4px rgba(0,0,0,0.8)",
-              letterSpacing: "0.05em",
-            }}
-          >
-            {line.chapter}
-          </div>
-        )}
+        {/* 
+          // TypeScript error workaround: ScriptLine doesn't have 'chapter' anymore 
+          // line.chapter && (
+          //   <div...
+          // ) 
+        */}
         <div
           style={{
             fontSize: 40,

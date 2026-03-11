@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { ethers } from "ethers";
 import { AppShell, Panel, Pill } from "@/app/_components/shell";
-import { connectWallet, switchToShibuya } from "@/app/_components/wallet";
+import { connectWallet, switchToSepolia } from "@/app/_components/wallet";
 import { readFlowState, writeFlowState } from "@/app/_components/flow-state";
 import { FinalSceneVisual } from "@/app/_components/final-scene-visual";
-import { DEMO_QUEST_ID, getAstarExplorerTxUrl, SHIBUYA_CHAIN_ID } from "@/lib/finalSceneDemo";
+import { DEMO_QUEST_ID, getExplorerTxUrl, SEPOLIA_CHAIN_ID } from "@/lib/finalSceneDemo";
 import { resolveTask10Mode, type Task10Mode } from "@/lib/task10Config";
 
 type SessionInfo = {
@@ -137,7 +137,7 @@ export default function FinalPage() {
   const [photoName, setPhotoName] = useState("");
   const [task10Check, setTask10Check] = useState<Task10CheckResult | null>(null);
 
-  const chainOk = chainId === SHIBUYA_CHAIN_ID;
+  const chainOk = chainId === SEPOLIA_CHAIN_ID;
   const threshold = session?.threshold || 4;
   const ready = submittedCount >= threshold;
   const unlocked = Boolean(unlockTxHash);
@@ -184,11 +184,11 @@ export default function FinalPage() {
     }
   }
 
-  async function onSwitchShibuya() {
+  async function onSwitchSepolia() {
     try {
-      await switchToShibuya();
+      await switchToSepolia();
       await onConnect();
-      setStatus("switched_to_shibuya");
+      setStatus("switched_to_sepolia");
     } catch (e) {
       setError(e instanceof Error ? e.message : "switch_failed");
     }
@@ -197,7 +197,7 @@ export default function FinalPage() {
   async function bootstrap() {
     try {
       if (!wallet) throw new Error("wallet_not_connected");
-      if (!chainOk) throw new Error("wrong_chain_switch_to_shibuya");
+      if (!chainOk) throw new Error("wrong_chain_switch_to_sepolia");
       setStatus("bootstrapping");
       const res = await fetch("/api/demo/final-scene/bootstrap", {
         method: "POST",
@@ -215,7 +215,7 @@ export default function FinalPage() {
       setSessionId(j.sessionId);
       setFinalShare(j.finalPlayerShare);
       setNonce(String(Math.floor(Date.now() / 1000)));
-      writeFlowState({ questId, shamirSessionId: j.sessionId, contractAddress, chainId: SHIBUYA_CHAIN_ID, task10Mode: mode });
+      writeFlowState({ questId, shamirSessionId: j.sessionId, contractAddress, chainId: SEPOLIA_CHAIN_ID, task10Mode: mode });
       setStatus("bootstrap_ready_3of4");
       setError("");
       await refresh();
@@ -388,7 +388,7 @@ export default function FinalPage() {
       if (!sessionId) throw new Error("session_not_ready");
       if (!wallet) throw new Error("wallet_not_connected");
       if (!finalShare) throw new Error("final_share_missing");
-      if (!chainOk) throw new Error("wrong_chain_switch_to_shibuya");
+      if (!chainOk) throw new Error("wrong_chain_switch_to_sepolia");
 
       setStatus("submitting_last_shard");
       const { signer, address } = await connectWallet();
@@ -414,7 +414,7 @@ export default function FinalPage() {
     try {
       if (!sessionId) throw new Error("session_not_ready");
       if (!contractAddress) throw new Error("contract_address_missing");
-      if (!chainOk) throw new Error("wrong_chain_switch_to_shibuya");
+      if (!chainOk) throw new Error("wrong_chain_switch_to_sepolia");
       if (!ready) throw new Error("insufficient_shards");
       if (!task10Unlockable) throw new Error("task10_check_not_passed");
 
@@ -423,7 +423,7 @@ export default function FinalPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          chainId: SHIBUYA_CHAIN_ID,
+          chainId: SEPOLIA_CHAIN_ID,
           contractAddress,
           nonce: Number(nonce),
         }),
@@ -443,7 +443,7 @@ export default function FinalPage() {
         questId,
         contractAddress,
         shamirSessionId: sessionId,
-        chainId: SHIBUYA_CHAIN_ID,
+        chainId: SEPOLIA_CHAIN_ID,
         task10Mode: mode,
       });
       const rc = await tx.wait();
@@ -459,7 +459,7 @@ export default function FinalPage() {
   async function payout() {
     try {
       if (!contractAddress) throw new Error("contract_address_missing");
-      if (!chainOk) throw new Error("wrong_chain_switch_to_shibuya");
+      if (!chainOk) throw new Error("wrong_chain_switch_to_sepolia");
       if (!unlockTxHash) throw new Error("unlock_not_done");
 
       setStatus("payout_pending");
@@ -467,7 +467,7 @@ export default function FinalPage() {
       const contract = new ethers.Contract(contractAddress, ["function payout(bytes32 questId)"], signer);
       const tx = await contract.payout(questId);
       setPayoutTxHash(tx.hash);
-      writeFlowState({ lastTxHash: tx.hash, questId, contractAddress, chainId: SHIBUYA_CHAIN_ID, task10Mode: mode });
+      writeFlowState({ lastTxHash: tx.hash, questId, contractAddress, chainId: SEPOLIA_CHAIN_ID, task10Mode: mode });
       const rc = await tx.wait();
       if (rc?.status !== 1) throw new Error("payout_tx_reverted");
       setStatus("payout_confirmed");
@@ -503,8 +503,8 @@ export default function FinalPage() {
             <button className="rounded-lg border border-slate-400 px-3 py-2 text-sm" onClick={onConnect}>
               Wallet接続
             </button>
-            <button className="rounded-lg border border-amber-700 bg-amber-600 px-3 py-2 text-sm text-white" onClick={onSwitchShibuya}>
-              Shibuyaへ切替
+            <button className="rounded-lg border border-amber-700 bg-amber-600 px-3 py-2 text-sm text-white" onClick={onSwitchSepolia}>
+              Sepoliaへ切替
             </button>
             <button className="rounded-lg bg-slate-900 px-3 py-2 text-sm text-white disabled:opacity-50" disabled={!chainOk || !wallet} onClick={bootstrap}>
               Demo初期化（3/4）
@@ -649,13 +649,13 @@ export default function FinalPage() {
           </div>
           <div className="mt-2 space-y-1 text-xs">
             {unlockTxHash ? (
-              <a className="text-blue-700 underline" href={getAstarExplorerTxUrl(unlockTxHash)} target="_blank" rel="noreferrer">
-                unlockをSubscanで確認
+              <a className="text-blue-700 underline" href={getExplorerTxUrl(unlockTxHash)} target="_blank" rel="noreferrer">
+                unlockをEtherscanで確認
               </a>
             ) : null}
             {payoutTxHash ? (
-              <a className="block text-blue-700 underline" href={getAstarExplorerTxUrl(payoutTxHash)} target="_blank" rel="noreferrer">
-                payoutをSubscanで確認
+              <a className="block text-blue-700 underline" href={getExplorerTxUrl(payoutTxHash)} target="_blank" rel="noreferrer">
+                payoutをEtherscanで確認
               </a>
             ) : null}
           </div>

@@ -59,8 +59,8 @@ async function main() {
         const startFrame = index * 240; // 仮の開始位置（voices の後に調整されるが初期値として）
         sceneItems.push(`  {
     id: "${scene.id}",
-    text: "${scene.text.replace(/"/g, '\\"')}",
-    narration: "${scene.narration.replace(/"/g, '\\"')}",
+    text: "${(scene.textOverlay?.text || '').replace(/"/g, '\\"').replace(/\n/g, '\\n')}",
+    narration: "${(scene.textOverlay?.text || '').replace(/"/g, '\\"').replace(/\n/g, '\\n')}",
     durationInFrames: 150,
     startFrame: ${startFrame},
   },`);
