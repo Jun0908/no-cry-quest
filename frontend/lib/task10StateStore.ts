@@ -25,6 +25,7 @@ export type Task10CheckRecord = {
 
 type QuestTask10State = {
   puzzleAttempts: number;
+  hintRequests: number;
   puzzleSolved: boolean;
   checkAttempts: number;
   forcedSuccess: boolean;
@@ -38,6 +39,7 @@ type Task10Store = {
 
 const INITIAL_QUEST_STATE: QuestTask10State = {
   puzzleAttempts: 0,
+  hintRequests: 0,
   puzzleSolved: false,
   checkAttempts: 0,
   forcedSuccess: false,
@@ -71,7 +73,11 @@ async function writeStore(store: Task10Store) {
 
 function getQuestState(store: Task10Store, questId: string): QuestTask10State {
   const current = store.quests[questId];
-  if (current) return current;
+  if (current) {
+    const normalized = { ...INITIAL_QUEST_STATE, ...current };
+    store.quests[questId] = normalized;
+    return normalized;
+  }
   const next = { ...INITIAL_QUEST_STATE };
   store.quests[questId] = next;
   return next;
@@ -87,6 +93,14 @@ export async function markTask10PuzzleAttempt(questId: string, solved: boolean) 
   const state = getQuestState(store, questId);
   state.puzzleAttempts += 1;
   if (solved) state.puzzleSolved = true;
+  await writeStore(store);
+  return state;
+}
+
+export async function markTask10HintRequest(questId: string) {
+  const store = await readStore();
+  const state = getQuestState(store, questId);
+  state.hintRequests += 1;
   await writeStore(store);
   return state;
 }

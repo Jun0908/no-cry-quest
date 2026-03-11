@@ -2,9 +2,10 @@
   "quests": {
     "0x0900000000000000000000000000000000000000000000000000000000000009": {
       "puzzleAttempts": 0,
-      "puzzleSolved": false,
+      "hintRequests": 0,
+      "puzzleSolved": true,
       "checkAttempts": 0,
-      "forcedSuccess": false
+      "forcedSuccess": true
     },
     "0xquest-demo": {
       "puzzleAttempts": 1,

@@ -1,4 +1,19 @@
 {
   "proofs": {},
-  "quests": {}
+  "quests": {
+    "0x0900000000000000000000000000000000000000000000000000000000000009": {
+      "questId": "0x0900000000000000000000000000000000000000000000000000000000000009",
+      "status": "verified",
+      "lastUpdatedAt": "2026-03-11T13:30:02.683Z",
+      "verifiedAt": "2026-03-11T13:29:45.189Z",
+      "verifiedProofHash": "0xe07a3cc76597275d4459f50e122dda4ac6e110a7d2cb5d1dbed74c3d64839435",
+      "verificationReasons": [
+        "demo_bootstrap"
+      ],
+      "signedNonces": [
+        1773222717,
+        1773235785
+      ]
+    }
+  }
 }

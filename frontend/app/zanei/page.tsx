@@ -32,7 +32,7 @@ type PuzzleResponse = {
         cipher: { id: string; symbol: string; category: string }[];
         candidates: { id: string; label: string; summary: string }[];
     };
-    state?: { puzzleSolved: boolean; puzzleAttempts: number };
+    state?: { puzzleSolved: boolean; puzzleAttempts: number; hintRequests: number };
     error?: string;
 };
 type Task10CheckResult = {
@@ -85,6 +85,13 @@ const PHASES = [
 ════════════════════════════════════════════ */
 export default function ZaneiPage() {
     const flow = useMemo(() => readFlowState(), []);
+    const normalizedQuestId = useMemo(
+        () => (ethers.isHexString(flow.questId, 32) ? flow.questId : DEMO_QUEST_ID),
+        [flow.questId]
+    );
+    useEffect(() => {
+        if (flow.questId !== normalizedQuestId) writeFlowState({ questId: normalizedQuestId });
+    }, [flow.questId, normalizedQuestId]);
 
     /* wallet / chain */
     const [wallet, setWallet] = useState("");
@@ -92,9 +99,9 @@ export default function ZaneiPage() {
     const chainOk = chainId === SEPOLIA_CHAIN_ID;
 
     /* quest ids */
-    const [questId] = useState(flow.questId || DEMO_QUEST_ID);
+    const [questId] = useState(normalizedQuestId);
     const [sessionId, setSessionId] = useState(flow.shamirSessionId || "");
-    const [contractAddress] = useState(flow.contractAddress || process.env.NEXT_PUBLIC_VAULT_ADDRESS || "");
+    const [contractAddress] = useState(process.env.NEXT_PUBLIC_VAULT_ADDRESS || flow.contractAddress || "");
     const [nonce, setNonce] = useState("101");
 
     /* session */
@@ -111,6 +118,10 @@ export default function ZaneiPage() {
     const [puzzleAttempts, setPuzzleAttempts] = useState(0);
     const [selectedCandidate, setSelectedCandidate] = useState("");
     const [hint, setHint] = useState("");
+    const [hintRole, setHintRole] = useState("");
+    const [hintLevel, setHintLevel] = useState(0);
+    const [hintRequests, setHintRequests] = useState(0);
+    const [requiredHintRequests, setRequiredHintRequests] = useState(3);
 
     /* location */
     const [latitude, setLatitude] = useState("");
@@ -132,6 +143,7 @@ export default function ZaneiPage() {
     const [movieEnded3, setMovieEnded3] = useState(false);
     const [movieEnded4, setMovieEnded4] = useState(false);
     const [movieEnded5, setMovieEnded5] = useState(false);
+    const [hydrated, setHydrated] = useState(false);
 
     /* derived */
     const threshold = session?.threshold || 4;
@@ -139,6 +151,8 @@ export default function ZaneiPage() {
     const unlocked = Boolean(unlockTxHash);
     const paid = Boolean(payoutTxHash);
     const task10Unlockable = Boolean(task10Check?.unlockable);
+    const hintProgress = Math.min(hintRequests, requiredHintRequests);
+    const canConfirmCandidate = Boolean(selectedCandidate) && hintProgress >= requiredHintRequests;
 
     /* ── Side-effect: auto-advance phase ── */
     useEffect(() => {
@@ -153,6 +167,9 @@ export default function ZaneiPage() {
     useEffect(() => {
         if (unlocked && phase === 4) setPhase(5);
     }, [unlocked, phase]);
+    useEffect(() => {
+        setHydrated(true);
+    }, []);
 
     /* ── API helpers (identical logic to app/final) ── */
     async function refresh() {
@@ -171,6 +188,7 @@ export default function ZaneiPage() {
                 setPuzzle(pj.puzzle);
                 setPuzzleSolved(pj.state.puzzleSolved);
                 setPuzzleAttempts(pj.state.puzzleAttempts);
+                setHintRequests(pj.state.hintRequests || 0);
                 if (!selectedCandidate && pj.puzzle.candidates[0]) setSelectedCandidate(pj.puzzle.candidates[0].id);
             }
         } catch (e) { setError(e instanceof Error ? e.message : "refresh_failed"); }
@@ -198,20 +216,72 @@ export default function ZaneiPage() {
     }
     async function solvePuzzle() {
         try {
-            if (!selectedCandidate) throw new Error("候補を選んでください");
+            if (!selectedCandidate) throw new Error("candidate_missing");
             const r = await fetch("/api/task10/puzzle/solve", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ questId, candidateId: selectedCandidate }) });
-            const j = (await r.json()) as { ok: boolean; solved?: boolean; hint?: string; attempts?: number; error?: string };
+            const j = (await r.json()) as {
+                ok: boolean;
+                solved?: boolean;
+                needsMoreHints?: boolean;
+                hint?: string;
+                role?: string;
+                hintLevel?: number;
+                hintRequests?: number;
+                requiredHintRequests?: number;
+                guidance?: string;
+                attempts?: number;
+                error?: string;
+            };
             if (!j.ok) throw new Error(j.error || "solve_failed");
-            setPuzzleSolved(Boolean(j.solved)); setPuzzleAttempts(j.attempts || 0); setHint(j.hint || ""); setError("");
+            setPuzzleSolved(Boolean(j.solved));
+            setPuzzleAttempts(j.attempts || 0);
+            if (typeof j.hintRequests === "number") setHintRequests(j.hintRequests);
+            if (typeof j.requiredHintRequests === "number") setRequiredHintRequests(j.requiredHintRequests);
+            if (typeof j.hintLevel === "number") setHintLevel(j.hintLevel);
+            if (j.role) setHintRole(j.role);
+            if (j.hint) setHint(j.hint);
+            if (j.guidance) setOpStatus(j.guidance);
+            if (!j.solved && j.needsMoreHints && !j.guidance) {
+                setOpStatus("ヒントを3段階まで進めてから候補を確定してください。");
+            }
+            setError("");
         } catch (e) { setError(e instanceof Error ? e.message : "solve_failed"); }
     }
     async function requestHint() {
         try {
             const r = await fetch("/api/task10/hint", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ questId }) });
-            const j = (await r.json()) as { ok: boolean; hint?: string; error?: string };
+            const j = (await r.json()) as {
+                ok: boolean;
+                hint?: string;
+                role?: string;
+                level?: number;
+                hintRequests?: number;
+                requiredHintRequests?: number;
+                error?: string;
+            };
             if (!j.ok) throw new Error(j.error || "hint_failed");
             setHint(j.hint || "");
+            if (j.role) setHintRole(j.role);
+            if (typeof j.level === "number") setHintLevel(j.level);
+            if (typeof j.hintRequests === "number") setHintRequests(j.hintRequests);
+            if (typeof j.requiredHintRequests === "number") setRequiredHintRequests(j.requiredHintRequests);
+            if (typeof j.level === "number" && typeof j.requiredHintRequests === "number") {
+                setOpStatus(`ヒント ${j.level}/${j.requiredHintRequests} を表示中`);
+            }
+            setError("");
         } catch (e) { setError(e instanceof Error ? e.message : "hint_failed"); }
+    }
+    async function simulatePuzzleSuccess() {
+        try {
+            const r = await fetch("/api/task10/puzzle/simulate-success", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ questId }) });
+            const j = (await r.json()) as { ok: boolean; error?: string };
+            if (!j.ok) throw new Error(j.error || "simulate_puzzle_failed");
+            setPuzzleSolved(true);
+            setTask10Check(null);
+            setPhase(2);
+            setOpStatus("換字暗号フェーズをスキップしました。");
+            setError("");
+            await refresh();
+        } catch (e) { setError(e instanceof Error ? e.message : "simulate_puzzle_failed"); }
     }
     async function captureLocation() {
         try {
@@ -279,8 +349,17 @@ export default function ZaneiPage() {
             if (!sessionId || !contractAddress || !chainOk || !ready || !task10Unlockable) throw new Error("解錠条件が揃っていません");
             setOpStatus("解錠準備中…");
             const pr = await fetch(`/api/shamir/sessions/${sessionId}/reconstruct`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chainId: SEPOLIA_CHAIN_ID, contractAddress, nonce: Number(nonce) }) });
-            const pl = (await pr.json()) as { ok: boolean; error?: string; tx?: { to: string; data: string } };
-            if (!pl.ok || !pl.tx) throw new Error(pl.error || "reconstruct_failed");
+            const pl = (await pr.json()) as {
+                ok: boolean;
+                error?: string;
+                hint?: string;
+                contractAddress?: string;
+                tx?: { to: string; data: string };
+            };
+            if (!pl.ok || !pl.tx) {
+                const detail = [pl.error || "reconstruct_failed", pl.hint, pl.contractAddress].filter(Boolean).join(" | ");
+                throw new Error(detail || "reconstruct_failed");
+            }
             setOpStatus("トランザクション送信中…");
             const { signer } = await connectWallet();
             const tx = await signer.sendTransaction({ to: pl.tx.to, data: pl.tx.data });
@@ -289,7 +368,15 @@ export default function ZaneiPage() {
             const rc = await tx.wait();
             if (rc?.status !== 1) throw new Error("unlock_tx_reverted");
             setOpStatus("✓ 解錠完了"); setError(""); await refresh();
-        } catch (e) { setError(e instanceof Error ? e.message : "unlock_failed"); setOpStatus(""); }
+        } catch (e) {
+            const msg = e instanceof Error ? e.message : "unlock_failed";
+            if (msg.includes("onchain_no_quest") || msg.includes("no quest")) {
+                setError(`onchain_no_quest: createQuest must be executed for this questId before unlock. (contract=${contractAddress})`);
+            } else {
+                setError(msg);
+            }
+            setOpStatus("");
+        }
     }
     async function payout() {
         try {
@@ -309,6 +396,15 @@ export default function ZaneiPage() {
     useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [questId, sessionId]);
 
     /* ════ RENDER ════ */
+    if (!hydrated) {
+        return (
+            <GameShell>
+                <div className="mb-4 rounded-xl px-4 py-3 text-xs" style={{ background: "rgba(201,150,42,0.08)", border: "1px solid rgba(201,150,42,0.28)", color: "#c9962a" }}>
+                    読み込み中...
+                </div>
+            </GameShell>
+        );
+    }
     return (
         <GameShell>
             {/* ── Hero banner ── */}
@@ -473,26 +569,33 @@ export default function ZaneiPage() {
                             }}
                         >
                             <p className="text-sm font-semibold">{c.label}</p>
-                            <p className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.35)" }}>{c.summary}</p>
                         </button>
                     ))}
                 </div>
 
                 {hint && (
                     <div className="mb-3 rounded-xl px-4 py-3 text-xs" style={{ background: "rgba(201,150,42,0.1)", border: "1px solid rgba(201,150,42,0.3)", color: "#c9962a" }}>
-                        💡 {hint}
+                        <p className="font-semibold">
+                            💡 ヒント {hintLevel || hintProgress}/{requiredHintRequests}{hintRole ? ` - ${hintRole}` : ""}
+                        </p>
+                        <p className="mt-1">{hint}</p>
                     </div>
                 )}
                 <p className="mb-3 text-xs text-center" style={{ color: "rgba(255,255,255,0.3)" }}>
-                    試行: {puzzleAttempts} 回 / 解読: {puzzleSolved ? "✓ 成功" : "未解読"}
+                    試行: {puzzleAttempts} 回 / ヒント: {hintProgress}/{requiredHintRequests} / 解読: {puzzleSolved ? "✓ 成功" : "未解読"}
                 </p>
+                {!puzzleSolved && hintProgress < requiredHintRequests && (
+                    <p className="mb-3 text-xs text-center" style={{ color: "rgba(201,150,42,0.75)" }}>
+                        先にヒントを{requiredHintRequests}段階まで進めると候補確定が解放されます。
+                    </p>
+                )}
 
                 <div className="grid grid-cols-2 gap-2">
-                    <GoldButton onClick={solvePuzzle} disabled={!selectedCandidate}>候補を確定する</GoldButton>
+                    <GoldButton onClick={solvePuzzle} disabled={!canConfirmCandidate}>候補を確定する</GoldButton>
                     <GoldButton variant="ghost" onClick={requestHint}>ヒントを求める</GoldButton>
                 </div>
                 <div className="mt-2">
-                    <GoldButton variant="danger" onClick={simulateTask10Success}>（DEMOスキップ）</GoldButton>
+                    <GoldButton variant="danger" onClick={simulatePuzzleSuccess}>（DEMO: 謎解きのみスキップ）</GoldButton>
                 </div>
             </PhaseCard>
 

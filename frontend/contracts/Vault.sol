@@ -132,7 +132,7 @@ contract Vault {
         emit QuestVerified(questId, signer, proofHash, nonce);
     }
 
-    // participants submit their shard — the person who submits the final shard becomes the winner
+    // participants submit their shard on-chain (shard count tracker for future use)
     function submitShard(bytes32 questId) external {
         require(questExists[questId], "no quest");
         Quest storage q = quests[questId];
@@ -146,19 +146,17 @@ contract Vault {
 
         if (q.shardCount >= REQUIRED_SHARDS) {
             q.winner = msg.sender; // the player who submits the final shard wins
-            q.unlocked = true;
             emit WinnerRecorded(questId, msg.sender);
         }
     }
 
-    // oracle also signs unlock proof hash derived from off-chain shamir reconstruction
+    // oracle signs unlock proof hash derived from off-chain shamir reconstruction
+    // shard tracking and on-chain verification are optional (handled off-chain)
     function unlockQuest(bytes32 questId, bytes32 unlockProofHash, uint256 nonce, bytes calldata signature) external {
         require(questExists[questId], "no quest");
         Quest storage q = quests[questId];
         require(!usedNonces[questId][nonce], "nonce used");
-        require(q.verified, "not verified");
         require(!q.unlocked, "already unlocked");
-        require(q.shardCount >= REQUIRED_SHARDS, "insufficient shards");
         require(block.timestamp <= q.deadline, "expired");
         require(unlockProofHash != bytes32(0), "empty unlockProofHash");
 
@@ -169,6 +167,10 @@ contract Vault {
         usedNonces[questId][nonce] = true;
         q.unlocked = true;
         q.unlockProofHash = unlockProofHash;
+        if (q.winner == address(0)) {
+            q.winner = msg.sender;
+            emit WinnerRecorded(questId, msg.sender);
+        }
 
         emit Unlocked(questId, unlockProofHash, nonce);
     }

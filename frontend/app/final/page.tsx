@@ -452,7 +452,12 @@ export default function FinalPage() {
       setError("");
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "unlock_failed");
+      const msg = e instanceof Error ? e.message : "unlock_failed";
+      if (msg.includes("onchain_no_quest") || msg.includes("no quest")) {
+        setError("onchain_no_quest: createQuest must be executed for this questId before unlock.");
+      } else {
+        setError(msg);
+      }
     }
   }
 

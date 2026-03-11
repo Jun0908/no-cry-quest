@@ -5,6 +5,7 @@ import { assertNotPaused } from "@/lib/opsGuard";
 import { createSession } from "@/lib/shamirSessionStore";
 import { setSubmissions, type Submission } from "@/lib/shardStore";
 import { createDemoProofHash, DEMO_NPC_WALLETS, DEMO_QUEST_ID } from "@/lib/finalSceneDemo";
+import { resetTask10QuestState } from "@/lib/task10StateStore";
 
 export const runtime = "nodejs";
 
@@ -81,6 +82,7 @@ export async function POST(req: Request) {
       }));
 
     await setSubmissions(questId, preloaded);
+    await resetTask10QuestState(questId);
     const verifiedProofHash = createDemoProofHash(questId);
     await markVerified(questId, verifiedProofHash, ["demo_bootstrap"]);
     await appendAuditLog("verification_succeeded", questId, true, {

@@ -21,13 +21,22 @@ type PuzzleData = {
   clueLines: string[];
   candidates: PuzzleCandidate[];
   hints: {
-    level1: string;
-    level2: string;
+    level1: { role: string; text: string };
+    level2: { role: string; text: string };
+    level3: { role: string; text: string };
   };
 };
 
 const CIPHER_ROWS = cipherTable as CipherRow[];
 const PUZZLE_DATA = puzzle as PuzzleData;
+
+export type Task10HintLevel = 1 | 2 | 3;
+
+export type Task10Hint = {
+  level: Task10HintLevel;
+  role: string;
+  text: string;
+};
 
 export function getTask10PublicPuzzle() {
   return {
@@ -42,7 +51,8 @@ export function getTask10PublicPuzzle() {
     candidates: PUZZLE_DATA.candidates.map((c) => ({
       id: c.id,
       label: c.label,
-      summary: c.summary,
+      // Candidate summaries are intentionally hidden to avoid leaking narrowing clues too early.
+      summary: "",
     })),
   };
 }
@@ -53,6 +63,11 @@ export function evaluateTask10Candidate(candidateId: string) {
   return { ok: candidate.isAnswer, reason: candidate.isAnswer ? "solved" as const : "wrong_candidate" as const };
 }
 
-export function getTask10Hint(level: 1 | 2) {
-  return level === 1 ? PUZZLE_DATA.hints.level1 : PUZZLE_DATA.hints.level2;
+export function getTask10Hint(level: Task10HintLevel): Task10Hint {
+  const source = level === 1 ? PUZZLE_DATA.hints.level1 : level === 2 ? PUZZLE_DATA.hints.level2 : PUZZLE_DATA.hints.level3;
+  return {
+    level,
+    role: source.role,
+    text: source.text,
+  };
 }

@@ -16,6 +16,7 @@ export async function GET(req: Request) {
     state: {
       puzzleSolved: state.puzzleSolved,
       puzzleAttempts: state.puzzleAttempts,
+      hintRequests: state.hintRequests,
     },
   });
 }
