@@ -1,8 +1,8 @@
 {
   "quests": {
     "0x0900000000000000000000000000000000000000000000000000000000000009": {
-      "puzzleAttempts": 0,
-      "hintRequests": 0,
+      "puzzleAttempts": 1,
+      "hintRequests": 3,
       "puzzleSolved": true,
       "checkAttempts": 0,
       "forcedSuccess": true

@@ -1,7 +1,7 @@
 "use client";
 
 import { ethers } from "ethers";
-import { SEPOLIA_CHAIN_PARAMS, SEPOLIA_HEX_CHAIN_ID } from "@/lib/finalSceneDemo";
+import { SEPOLIA_CHAIN_PARAMS, SEPOLIA_HEX_CHAIN_ID, MINATO_CHAIN_PARAMS, MINATO_HEX_CHAIN_ID } from "@/lib/finalSceneDemo";
 
 type EthereumWindow = Window & {
   ethereum?: ethers.Eip1193Provider;
@@ -39,6 +39,27 @@ export async function switchToSepolia() {
     await ethereum.request({
       method: "wallet_switchEthereumChain",
       params: [{ chainId: SEPOLIA_HEX_CHAIN_ID }],
+    });
+  }
+}
+
+export async function switchToMinato() {
+  const ethereum = getEthereumProvider();
+  try {
+    await ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: MINATO_HEX_CHAIN_ID }],
+    });
+  } catch (error) {
+    const code = (error as { code?: number })?.code;
+    if (code !== 4902) throw error;
+    await ethereum.request({
+      method: "wallet_addEthereumChain",
+      params: [MINATO_CHAIN_PARAMS],
+    });
+    await ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: MINATO_HEX_CHAIN_ID }],
     });
   }
 }

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -r \"wallet\\\\|connect\\\\|chain\\\\|network\" /c/Users/j_kaw/Desktop/no-cry/frontend/app/_components --include=*.tsx --include=*.ts)"
+    ]
+  }
+}

@@ -15,6 +15,21 @@ export const SEPOLIA_CHAIN_PARAMS = {
   blockExplorerUrls: ["https://sepolia.etherscan.io"],
 };
 
+export const MINATO_CHAIN_ID = 1946;
+export const MINATO_HEX_CHAIN_ID = "0x79a";
+
+export const MINATO_CHAIN_PARAMS = {
+  chainId: MINATO_HEX_CHAIN_ID,
+  chainName: "Soneium Minato Testnet",
+  nativeCurrency: {
+    name: "Ether",
+    symbol: "ETH",
+    decimals: 18,
+  },
+  rpcUrls: ["https://rpc.minato.soneium.org"],
+  blockExplorerUrls: ["https://explorer-testnet.soneium.org"],
+};
+
 export const DEMO_QUEST_ID = process.env.NEXT_PUBLIC_DEMO_QUEST_ID || "0x0900000000000000000000000000000000000000000000000000000000000009";
 
 export const DEMO_NPC_WALLETS = [
@@ -27,6 +42,9 @@ export function createDemoProofHash(questId: string) {
   return ethers.keccak256(ethers.toUtf8Bytes(`final-scene:${questId}:verified`));
 }
 
-export function getExplorerTxUrl(txHash: string) {
+export function getExplorerTxUrl(txHash: string, chainId?: number) {
+  if (chainId === MINATO_CHAIN_ID) {
+    return `https://explorer-testnet.soneium.org/tx/${txHash}`;
+  }
   return `https://sepolia.etherscan.io/tx/${txHash}`;
 }

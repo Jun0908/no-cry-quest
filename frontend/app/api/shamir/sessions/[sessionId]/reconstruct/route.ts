@@ -35,6 +35,9 @@ const CHAIN_RPC_URLS: Record<number, string[]> = {
     "https://ethereum-sepolia-rpc.publicnode.com",
     "https://1rpc.io/sepolia",
   ],
+  1946: [
+    process.env.MINATO_RPC_URL || "https://rpc.minato.soneium.org",
+  ],
 };
 
 function createProvider(url: string, chainId: number) {

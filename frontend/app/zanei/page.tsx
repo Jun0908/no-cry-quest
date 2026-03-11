@@ -10,9 +10,9 @@ import {
     GoldDivider,
     TextSm,
 } from "@/app/_components/GameShell";
-import { connectWallet, switchToSepolia } from "@/app/_components/wallet";
+import { connectWallet, switchToSepolia, switchToMinato } from "@/app/_components/wallet";
 import { readFlowState, writeFlowState } from "@/app/_components/flow-state";
-import { DEMO_QUEST_ID, getExplorerTxUrl, SEPOLIA_CHAIN_ID } from "@/lib/finalSceneDemo";
+import { DEMO_QUEST_ID, getExplorerTxUrl, SEPOLIA_CHAIN_ID, MINATO_CHAIN_ID } from "@/lib/finalSceneDemo";
 import { resolveTask10Mode, type Task10Mode } from "@/lib/task10Config";
 import Image from "next/image";
 
@@ -96,7 +96,9 @@ export default function ZaneiPage() {
     /* wallet / chain */
     const [wallet, setWallet] = useState("");
     const [chainId, setChainId] = useState(Number(flow.chainId || 0));
-    const chainOk = chainId === SEPOLIA_CHAIN_ID;
+    const [selectedNetwork, setSelectedNetwork] = useState<"sepolia" | "minato">("sepolia");
+    const targetChainId = selectedNetwork === "minato" ? MINATO_CHAIN_ID : SEPOLIA_CHAIN_ID;
+    const chainOk = chainId === targetChainId;
 
     /* quest ids */
     const [questId] = useState(normalizedQuestId);
@@ -198,9 +200,11 @@ export default function ZaneiPage() {
         try { const { address, chainId: c } = await connectWallet(); setWallet(address); setChainId(c); writeFlowState({ chainId: c }); setError(""); }
         catch (e) { setError(e instanceof Error ? e.message : "connect_failed"); }
     }
-    async function onSwitchSepolia() {
-        try { await switchToSepolia(); await onConnect(); }
-        catch (e) { setError(e instanceof Error ? e.message : "switch_failed"); }
+    async function onSwitchNetwork() {
+        try {
+            if (selectedNetwork === "minato") { await switchToMinato(); } else { await switchToSepolia(); }
+            await onConnect();
+        } catch (e) { setError(e instanceof Error ? e.message : "switch_failed"); }
     }
     async function bootstrap() {
         try {
@@ -210,7 +214,7 @@ export default function ZaneiPage() {
             const j = (await r.json()) as { ok: boolean; error?: string; sessionId?: string; finalPlayerShare?: string };
             if (!j.ok || !j.sessionId || !j.finalPlayerShare) throw new Error(j.error || "bootstrap_failed");
             setSessionId(j.sessionId); setFinalShare(j.finalPlayerShare); setNonce(String(Math.floor(Date.now() / 1000)));
-            writeFlowState({ questId, shamirSessionId: j.sessionId, contractAddress, chainId: SEPOLIA_CHAIN_ID, task10Mode: mode });
+            writeFlowState({ questId, shamirSessionId: j.sessionId, contractAddress, chainId, task10Mode: mode });
             setOpStatus("3/4 鍵がセットされました"); setError(""); await refresh();
         } catch (e) { setError(e instanceof Error ? e.message : "bootstrap_failed"); setOpStatus(""); }
     }
@@ -348,7 +352,7 @@ export default function ZaneiPage() {
         try {
             if (!sessionId || !contractAddress || !chainOk || !ready || !task10Unlockable) throw new Error("解錠条件が揃っていません");
             setOpStatus("解錠準備中…");
-            const pr = await fetch(`/api/shamir/sessions/${sessionId}/reconstruct`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chainId: SEPOLIA_CHAIN_ID, contractAddress, nonce: Number(nonce) }) });
+            const pr = await fetch(`/api/shamir/sessions/${sessionId}/reconstruct`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ chainId, contractAddress, nonce: Number(nonce) }) });
             const pl = (await pr.json()) as {
                 ok: boolean;
                 error?: string;
@@ -364,7 +368,7 @@ export default function ZaneiPage() {
             const { signer } = await connectWallet();
             const tx = await signer.sendTransaction({ to: pl.tx.to, data: pl.tx.data });
             setUnlockTxHash(tx.hash);
-            writeFlowState({ lastTxHash: tx.hash, questId, contractAddress, shamirSessionId: sessionId, chainId: SEPOLIA_CHAIN_ID, task10Mode: mode });
+            writeFlowState({ lastTxHash: tx.hash, questId, contractAddress, shamirSessionId: sessionId, chainId, task10Mode: mode });
             const rc = await tx.wait();
             if (rc?.status !== 1) throw new Error("unlock_tx_reverted");
             setOpStatus("✓ 解錠完了"); setError(""); await refresh();
@@ -386,7 +390,7 @@ export default function ZaneiPage() {
             const contract = new ethers.Contract(contractAddress, ["function payout(bytes32 questId)"], signer);
             const tx = await contract.payout(questId);
             setPayoutTxHash(tx.hash);
-            writeFlowState({ lastTxHash: tx.hash, questId, contractAddress, chainId: SEPOLIA_CHAIN_ID, task10Mode: mode });
+            writeFlowState({ lastTxHash: tx.hash, questId, contractAddress, chainId, task10Mode: mode });
             const rc = await tx.wait();
             if (rc?.status !== 1) throw new Error("payout_tx_reverted");
             setOpStatus("✓ 継承完了"); setError("");
@@ -429,7 +433,7 @@ export default function ZaneiPage() {
                 </div>
                 {/* Status badges top-right */}
                 <div className="absolute right-3 top-3 flex flex-col gap-1 items-end">
-                    <StatusBadge ok={chainOk} text={chainOk ? "Sepolia" : "未接続"} />
+                    <StatusBadge ok={chainOk} text={chainOk ? (selectedNetwork === "minato" ? "Minato" : "Sepolia") : "未接続"} />
                     <StatusBadge ok={ready} text={`鍵 ${submittedCount}/${threshold}`} />
                 </div>
             </div>
@@ -480,9 +484,30 @@ export default function ZaneiPage() {
 
                 {/* Wallet setup */}
                 <p className="mb-3 text-xs tracking-widest" style={{ color: "rgba(201,150,42,0.7)" }}>— WALLET —</p>
+                {/* Network selector tabs */}
+                <div className="mb-3 flex gap-2">
+                    <button
+                        onClick={() => setSelectedNetwork("sepolia")}
+                        className="flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all"
+                        style={selectedNetwork === "sepolia"
+                            ? { background: "rgba(201,150,42,0.25)", border: "1px solid rgba(201,150,42,0.7)", color: "#f5e8c0" }
+                            : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.4)" }}
+                    >
+                        Sepolia
+                    </button>
+                    <button
+                        onClick={() => setSelectedNetwork("minato")}
+                        className="flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all"
+                        style={selectedNetwork === "minato"
+                            ? { background: "rgba(80,160,255,0.2)", border: "1px solid rgba(80,160,255,0.6)", color: "#a0cfff" }
+                            : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.4)" }}
+                    >
+                        Minato
+                    </button>
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                     <GoldButton variant="secondary" onClick={onConnect}>ウォレット接続</GoldButton>
-                    <GoldButton variant="ghost" onClick={onSwitchSepolia}>Sepolia切替</GoldButton>
+                    <GoldButton variant="ghost" onClick={onSwitchNetwork}>{selectedNetwork === "minato" ? "Minato切替" : "Sepolia切替"}</GoldButton>
                 </div>
                 {wallet && (
                     <p className="mt-2 text-center text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{shortHash(wallet)}</p>
@@ -778,7 +803,7 @@ export default function ZaneiPage() {
 
                 {/* All-check badges */}
                 <div className="mb-4 flex flex-wrap gap-2">
-                    <StatusBadge ok={chainOk} text="Sepolia" />
+                    <StatusBadge ok={chainOk} text={selectedNetwork === "minato" ? "Minato" : "Sepolia"} />
                     <StatusBadge ok={ready} text={`鍵 ${submittedCount}/${threshold}`} />
                     <StatusBadge ok={task10Unlockable} text="判定 OK" />
                     <StatusBadge ok={Boolean(contractAddress)} text="Contract" />
@@ -793,7 +818,7 @@ export default function ZaneiPage() {
                         <div className="text-5xl mb-3" style={{ animation: "pulse 2s infinite", filter: "drop-shadow(0 0 16px gold)" }}>🏮</div>
                         <p className="text-sm font-semibold" style={{ color: "#60d080" }}>封印が解かれた</p>
                         <p className="mt-1 text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{shortHash(unlockTxHash)}</p>
-                        <a href={getExplorerTxUrl(unlockTxHash)} target="_blank" rel="noreferrer" className="mt-2 text-xs underline" style={{ color: "rgba(201,150,42,0.7)" }}>
+                        <a href={getExplorerTxUrl(unlockTxHash, chainId)} target="_blank" rel="noreferrer" className="mt-2 text-xs underline" style={{ color: "rgba(201,150,42,0.7)" }}>
                             Etherscanで確認 →
                         </a>
                     </div>
@@ -851,7 +876,7 @@ export default function ZaneiPage() {
                         <p className="text-sm font-semibold text-center" style={{ color: "#60d080" }}>✓ 継承が完了した</p>
                         <p className="mt-1 text-center text-xs" style={{ color: "rgba(255,255,255,0.4)" }}>{shortHash(payoutTxHash)}</p>
                         <div className="mt-2 text-center">
-                            <a href={getExplorerTxUrl(payoutTxHash)} target="_blank" rel="noreferrer" className="text-xs underline" style={{ color: "rgba(201,150,42,0.7)" }}>
+                            <a href={getExplorerTxUrl(payoutTxHash, chainId)} target="_blank" rel="noreferrer" className="text-xs underline" style={{ color: "rgba(201,150,42,0.7)" }}>
                                 Etherscanで確認 →
                             </a>
                         </div>
@@ -889,11 +914,8 @@ export default function ZaneiPage() {
             {/* ── Bottom note ── */}
             <div className="mt-8 text-center">
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>
-                    残影 ZANEI · Sepolia Testnet
+                    残影 ZANEI
                 </p>
-                <button onClick={refresh} className="mt-1 text-xs underline" style={{ color: "rgba(201,150,42,0.3)" }}>
-                    状態を同期
-                </button>
             </div>
         </GameShell>
     );
