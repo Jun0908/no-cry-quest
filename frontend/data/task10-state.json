@@ -50,8 +50,31 @@
       "puzzleAttempts": 1,
       "hintRequests": 3,
       "puzzleSolved": true,
-      "checkAttempts": 0,
-      "forcedSuccess": true
+      "checkAttempts": 1,
+      "forcedSuccess": false,
+      "lastCheck": {
+        "at": "2026-03-12T10:19:36.010Z",
+        "mode": "current_location",
+        "unlockable": true,
+        "checks": {
+          "puzzle": true,
+          "position": true,
+          "heading": true,
+          "pitch": true,
+          "view": true
+        },
+        "detail": {
+          "mode": "current_location",
+          "position": {
+            "distanceMeters": 44.41,
+            "radiusMeters": 120,
+            "anchor": {
+              "latitude": 35.5051,
+              "longitude": 139.547
+            }
+          }
+        }
+      }
     }
   }
 }
