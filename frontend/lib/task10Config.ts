@@ -3,6 +3,8 @@ export type Task10Mode = "current_location" | "toyokuni_photo";
 export type Task10Config = {
   defaultMode: Task10Mode;
   currentLocationRadiusMeters: number;
+  toyokuniLatitude: number;
+  toyokuniLongitude: number;
   headingTarget: number;
   headingTolerance: number;
   pitchTarget: number;
@@ -33,6 +35,8 @@ export function getTask10Config(): Task10Config {
   return {
     defaultMode: resolveTask10Mode(process.env.NEXT_PUBLIC_TASK10_MODE || process.env.TASK10_MODE),
     currentLocationRadiusMeters: getNumber("TASK10_RADIUS_METERS", 120),
+    toyokuniLatitude: getNumber("TASK10_TOYOKUNI_LAT", 34.9878),
+    toyokuniLongitude: getNumber("TASK10_TOYOKUNI_LNG", 135.7725),
     headingTarget: getNumber("TASK10_HEADING_TARGET", 118),
     headingTolerance: getNumber("TASK10_HEADING_TOLERANCE", 20),
     pitchTarget: getNumber("TASK10_PITCH_TARGET", 4),

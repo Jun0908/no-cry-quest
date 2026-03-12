@@ -1,5 +1,5 @@
 import { getTask10Config, type Task10Mode } from "@/lib/task10Config";
-import { getTask10QuestState, resolveCurrentLocationAnchor } from "@/lib/task10StateStore";
+import { getTask10QuestState } from "@/lib/task10StateStore";
 
 export type Task10CheckInput = {
   questId: string;
@@ -69,24 +69,31 @@ export async function evaluateTask10Check(input: Task10CheckInput): Promise<Task
   const puzzle = state.puzzleSolved;
   const detail: Record<string, unknown> = { mode: input.mode };
 
-  let position = false;
+  // current_location mode: position check only (fixed Toyokuni Shrine anchor)
   if (input.mode === "current_location") {
+    let position = false;
     if (typeof input.latitude === "number" && typeof input.longitude === "number") {
-      const anchor = await resolveCurrentLocationAnchor(input.questId, input.latitude, input.longitude);
-      const distance = haversineMeters(anchor.latitude, anchor.longitude, input.latitude, input.longitude);
+      const distance = haversineMeters(cfg.toyokuniLatitude, cfg.toyokuniLongitude, input.latitude, input.longitude);
       position = distance <= cfg.currentLocationRadiusMeters;
       detail.position = {
         distanceMeters: Number(distance.toFixed(2)),
         radiusMeters: cfg.currentLocationRadiusMeters,
-        anchor,
+        anchor: { latitude: cfg.toyokuniLatitude, longitude: cfg.toyokuniLongitude },
       };
     } else {
       detail.position = { reason: "location_missing" };
     }
-  } else {
-    position = true;
-    detail.position = { reason: "skipped_in_toyokuni_photo_mode" };
+    const unlockable = puzzle && position;
+    return {
+      unlockable,
+      checks: { puzzle, position, heading: true, pitch: true, view: true },
+      detail,
+    };
   }
+
+  // toyokuni_photo mode: heading / pitch / view checks
+  const position = true;
+  detail.position = { reason: "skipped_in_toyokuni_photo_mode" };
 
   const headingDiff =
     typeof input.heading === "number" ? angularDiff(input.heading, cfg.headingTarget) : Number.POSITIVE_INFINITY;
@@ -109,7 +116,7 @@ export async function evaluateTask10Check(input: Task10CheckInput): Promise<Task
   };
 
   const viewScore = typeof input.viewScore === "number" ? input.viewScore : 0;
-  const view = input.mode === "toyokuni_photo" && input.photoProvided ? true : viewScore >= cfg.viewScoreThreshold;
+  const view = input.photoProvided ? true : viewScore >= cfg.viewScoreThreshold;
   detail.view = {
     score: Number(viewScore.toFixed(3)),
     threshold: cfg.viewScoreThreshold,
@@ -119,13 +126,7 @@ export async function evaluateTask10Check(input: Task10CheckInput): Promise<Task
   const unlockable = puzzle && position && heading && pitch && view;
   return {
     unlockable,
-    checks: {
-      puzzle,
-      position,
-      heading,
-      pitch,
-      view,
-    },
+    checks: { puzzle, position, heading, pitch, view },
     detail,
   };
 }

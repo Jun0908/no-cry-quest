@@ -159,9 +159,6 @@ export default function ZaneiPage() {
 
     /* ── Side-effect: auto-advance phase ── */
     useEffect(() => {
-        if (puzzleSolved && phase === 1) setPhase(2);
-    }, [puzzleSolved, phase]);
-    useEffect(() => {
         if (task10Unlockable && phase === 2) setPhase(3);
     }, [task10Unlockable, phase]);
     useEffect(() => {
@@ -249,6 +246,7 @@ export default function ZaneiPage() {
             if (!j.solved && j.needsMoreHints && !j.guidance) {
                 setOpStatus("ヒントを3段階まで進めてから候補を確定してください。");
             }
+            if (j.solved) setPhase(2);
             setError("");
         } catch (e) { setError(e instanceof Error ? e.message : "solve_failed"); }
     }
