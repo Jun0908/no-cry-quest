@@ -1,7 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(grep -r \"wallet\\\\|connect\\\\|chain\\\\|network\" /c/Users/j_kaw/Desktop/no-cry/frontend/app/_components --include=*.tsx --include=*.ts)"
+      "Bash(grep -r \"wallet\\\\|connect\\\\|chain\\\\|network\" /c/Users/j_kaw/Desktop/no-cry/frontend/app/_components --include=*.tsx --include=*.ts)",
+      "Bash(grep -r \"User-Agent\\\\|userAgent\\\\|mobile\\\\|Mobile\\\\|iPhone\\\\|Android\\\\|tablet\" c:Usersj_kawDesktopno-cryfrontendapp c:Usersj_kawDesktopno-cryfrontendlib --include=*.ts --include=*.tsx)",
+      "Bash(grep -r \"MetaMask\\\\|window\\\\.ethereum\" /c/Users/j_kaw/Desktop/no-cry/frontend --include=*.ts --include=*.tsx)",
+      "Bash(ls -la /c/Users/j_kaw/Desktop/no-cry/frontend/.env*)",
+      "Bash(grep -r \"deeplink\\\\|deep link\\\\|mobile\\\\|Mobile\\\\|browser\\\\|Browser\" /c/Users/j_kaw/Desktop/no-cry/frontend/app --include=*.ts --include=*.tsx)"
     ]
   }
 }

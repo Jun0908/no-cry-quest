@@ -10,7 +10,7 @@ import {
     GoldDivider,
     TextSm,
 } from "@/app/_components/GameShell";
-import { connectWallet, switchToSepolia, switchToMinato } from "@/app/_components/wallet";
+import { connectWallet, switchToSepolia, switchToMinato, isMobileWithoutWallet, openInMetaMask } from "@/app/_components/wallet";
 import { readFlowState, writeFlowState } from "@/app/_components/flow-state";
 import { DEMO_QUEST_ID, getExplorerTxUrl, SEPOLIA_CHAIN_ID, MINATO_CHAIN_ID } from "@/lib/finalSceneDemo";
 import { resolveTask10Mode, type Task10Mode } from "@/lib/task10Config";
@@ -139,6 +139,7 @@ export default function ZaneiPage() {
     const [phase, setPhase] = useState(0); // 0=intro 1=cipher 2=locate 3=key 4=unlock 5=payout
     const [opStatus, setOpStatus] = useState("");
     const [error, setError] = useState("");
+    const [mobileNoWallet, setMobileNoWallet] = useState(false);
     const [movieEnded, setMovieEnded] = useState(false);
     const [movieEnded1, setMovieEnded1] = useState(false);
     const [movieEnded2, setMovieEnded2] = useState(false);
@@ -171,6 +172,7 @@ export default function ZaneiPage() {
     }, [unlocked, phase]);
     useEffect(() => {
         setHydrated(true);
+        setMobileNoWallet(isMobileWithoutWallet());
     }, []);
 
     /* ── API helpers (identical logic to app/final) ── */
@@ -484,33 +486,50 @@ export default function ZaneiPage() {
 
                 {/* Wallet setup */}
                 <p className="mb-3 text-xs tracking-widest" style={{ color: "rgba(201,150,42,0.7)" }}>— WALLET —</p>
-                {/* Network selector tabs */}
-                <div className="mb-3 flex gap-2">
-                    <button
-                        onClick={() => setSelectedNetwork("sepolia")}
-                        className="flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all"
-                        style={selectedNetwork === "sepolia"
-                            ? { background: "rgba(201,150,42,0.25)", border: "1px solid rgba(201,150,42,0.7)", color: "#f5e8c0" }
-                            : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.4)" }}
-                    >
-                        Sepolia
-                    </button>
-                    <button
-                        onClick={() => setSelectedNetwork("minato")}
-                        className="flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all"
-                        style={selectedNetwork === "minato"
-                            ? { background: "rgba(80,160,255,0.2)", border: "1px solid rgba(80,160,255,0.6)", color: "#a0cfff" }
-                            : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.4)" }}
-                    >
-                        Minato
-                    </button>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                    <GoldButton variant="secondary" onClick={onConnect}>ウォレット接続</GoldButton>
-                    <GoldButton variant="ghost" onClick={onSwitchNetwork}>{selectedNetwork === "minato" ? "Minato切替" : "Sepolia切替"}</GoldButton>
-                </div>
-                {wallet && (
-                    <p className="mt-2 text-center text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{shortHash(wallet)}</p>
+                {mobileNoWallet ? (
+                    <div className="rounded-xl p-4 text-center" style={{ background: "rgba(201,150,42,0.08)", border: "1px solid rgba(201,150,42,0.3)" }}>
+                        <p className="mb-3 text-xs" style={{ color: "rgba(255,255,255,0.6)" }}>
+                            MetaMaskアプリのブラウザで開いてください
+                        </p>
+                        <button
+                            onClick={openInMetaMask}
+                            className="w-full rounded-xl py-3 text-sm font-semibold"
+                            style={{ background: "rgba(201,150,42,0.25)", border: "1px solid rgba(201,150,42,0.7)", color: "#f5e8c0" }}
+                        >
+                            MetaMaskで開く
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        {/* Network selector tabs */}
+                        <div className="mb-3 flex gap-2">
+                            <button
+                                onClick={() => setSelectedNetwork("sepolia")}
+                                className="flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all"
+                                style={selectedNetwork === "sepolia"
+                                    ? { background: "rgba(201,150,42,0.25)", border: "1px solid rgba(201,150,42,0.7)", color: "#f5e8c0" }
+                                    : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.4)" }}
+                            >
+                                Sepolia
+                            </button>
+                            <button
+                                onClick={() => setSelectedNetwork("minato")}
+                                className="flex-1 rounded-lg py-1.5 text-xs font-semibold transition-all"
+                                style={selectedNetwork === "minato"
+                                    ? { background: "rgba(80,160,255,0.2)", border: "1px solid rgba(80,160,255,0.6)", color: "#a0cfff" }
+                                    : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.4)" }}
+                            >
+                                Minato
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                            <GoldButton variant="secondary" onClick={onConnect}>ウォレット接続</GoldButton>
+                            <GoldButton variant="ghost" onClick={onSwitchNetwork}>{selectedNetwork === "minato" ? "Minato切替" : "Sepolia切替"}</GoldButton>
+                        </div>
+                        {wallet && (
+                            <p className="mt-2 text-center text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>{shortHash(wallet)}</p>
+                        )}
+                    </>
                 )}
 
                 <GoldDivider />

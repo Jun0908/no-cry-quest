@@ -7,9 +7,31 @@ type EthereumWindow = Window & {
   ethereum?: ethers.Eip1193Provider;
 };
 
+function isMobileBrowser() {
+  return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+    navigator.userAgent.toLowerCase()
+  );
+}
+
+export function isMobileWithoutWallet() {
+  const w = window as EthereumWindow;
+  return isMobileBrowser() && !w.ethereum;
+}
+
+export function openInMetaMask() {
+  const url = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
+  window.location.href = url;
+}
+
 function getEthereumProvider() {
   const w = window as EthereumWindow;
-  if (!w.ethereum) throw new Error("wallet_not_found");
+  if (!w.ethereum) {
+    if (isMobileBrowser()) {
+      openInMetaMask();
+      throw new Error("redirecting_to_metamask");
+    }
+    throw new Error("wallet_not_found");
+  }
   return w.ethereum;
 }
 
