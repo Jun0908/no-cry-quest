@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \":*)",
+      "Bash(curl -v -X POST http://localhost:3000/api/task10/hint -H \"Content-Type: application/json\" -d '{\"\"\"\"questId\"\"\"\":\"\"\"\"test\"\"\"\"}')"
+    ]
+  }
+}

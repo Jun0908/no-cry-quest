@@ -89,14 +89,6 @@ We combine:
 
 to create a quest where rewards are not just given — they are **unlocked**.
 
-### Why it stands out
-This is not just a concept deck.  
-The repo includes a working flow from:
-
-**quest → unlock → payout → video artifact**
-
-### Why it matters
-This project shows how frontend experience, smart contract execution, and AI media generation can work together as one system.
 
 ---
 
