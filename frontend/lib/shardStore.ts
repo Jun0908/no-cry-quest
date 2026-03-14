@@ -1,7 +1,8 @@
 import { promises as fs } from 'fs';
 import path from 'path';
+import { getRuntimeDataPath } from "@/lib/runtimeDataPath";
 
-const DATA_PATH = path.resolve(process.cwd(), 'data', 'shard-submissions.json');
+const DATA_PATH = getRuntimeDataPath("shard-submissions.json");
 
 export type Submission = {
   shard: string;

@@ -18,8 +18,8 @@
     "0x0900000000000000000000000000000000000000000000000000000000000002": {
       "questId": "0x0900000000000000000000000000000000000000000000000000000000000002",
       "status": "verified",
-      "lastUpdatedAt": "2026-03-14T03:37:59.012Z",
-      "verifiedAt": "2026-03-14T03:37:59.012Z",
+      "lastUpdatedAt": "2026-03-14T03:47:21.339Z",
+      "verifiedAt": "2026-03-14T03:47:21.339Z",
       "verifiedProofHash": "0x7326780e1f476903d70eb6951924e0807c484ce5311292bd6f5919b555be1cfb",
       "verificationReasons": [
         "demo_bootstrap"

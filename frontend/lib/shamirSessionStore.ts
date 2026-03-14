@@ -2,8 +2,9 @@ import { promises as fs } from "fs";
 import path from "path";
 import { ethers } from "ethers";
 import { splitSecret } from "@/lib/shamir";
+import { getRuntimeDataPath } from "@/lib/runtimeDataPath";
 
-const STORE_PATH = path.resolve(process.cwd(), "data", "shamir-sessions.json");
+const STORE_PATH = getRuntimeDataPath("shamir-sessions.json");
 const DEFAULT_TTL_MS = 30 * 60 * 1000;
 
 export type SessionStatus = "collecting" | "ready" | "timed_out" | "cancelled" | "completed";

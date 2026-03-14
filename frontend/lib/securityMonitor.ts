@@ -1,7 +1,8 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { getRuntimeDataPath } from "@/lib/runtimeDataPath";
 
-const ALERTS_PATH = path.resolve(process.cwd(), "data", "security-alerts.jsonl");
+const ALERTS_PATH = getRuntimeDataPath("security-alerts.jsonl");
 const WINDOW_MS = 10 * 60 * 1000;
 
 type AuditLike = {

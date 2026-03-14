@@ -2,10 +2,11 @@ import { promises as fs } from "fs";
 import path from "path";
 import { ethers } from "ethers";
 import { recordSecuritySignal } from "@/lib/securityMonitor";
+import { getRuntimeDataPath } from "@/lib/runtimeDataPath";
 
-const STORE_PATH = path.resolve(process.cwd(), "data", "backend-store.json");
-const AUDIT_PATH = path.resolve(process.cwd(), "data", "audit-log.jsonl");
-const AUDIT_META_PATH = path.resolve(process.cwd(), "data", "audit-log.meta.json");
+const STORE_PATH = getRuntimeDataPath("backend-store.json");
+const AUDIT_PATH = getRuntimeDataPath("audit-log.jsonl");
+const AUDIT_META_PATH = getRuntimeDataPath("audit-log.meta.json");
 
 export type ProofEvidence = {
   nfcTag?: string;

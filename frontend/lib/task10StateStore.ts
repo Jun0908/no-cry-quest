@@ -1,7 +1,8 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { getRuntimeDataPath } from "@/lib/runtimeDataPath";
 
-const STORE_PATH = path.resolve(process.cwd(), "data", "task10-state.json");
+const STORE_PATH = getRuntimeDataPath("task10-state.json");
 
 type Anchor = {
   latitude: number;

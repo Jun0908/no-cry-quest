@@ -1,8 +1,9 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { ethers } from "ethers";
+import { getRuntimeDataPath } from "@/lib/runtimeDataPath";
 
-const STORE_PATH = path.resolve(process.cwd(), "data", "agent-runtime.json");
+const STORE_PATH = getRuntimeDataPath("agent-runtime.json");
 
 export type AgentRole = "player" | "operator" | "agent";
 
