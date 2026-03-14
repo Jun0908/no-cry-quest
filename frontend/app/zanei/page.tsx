@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ethers } from "ethers";
 import {
     GameShell,
@@ -89,6 +89,7 @@ export default function ZaneiPage() {
         () => (ethers.isHexString(flow.questId, 32) ? flow.questId : DEMO_QUEST_ID),
         [flow.questId]
     );
+    const audioRef = useRef<HTMLAudioElement | null>(null);
     useEffect(() => {
         if (flow.questId !== normalizedQuestId) writeFlowState({ questId: normalizedQuestId });
     }, [flow.questId, normalizedQuestId]);
@@ -147,6 +148,8 @@ export default function ZaneiPage() {
     const [movieEnded4, setMovieEnded4] = useState(false);
     const [movieEnded5, setMovieEnded5] = useState(false);
     const [hydrated, setHydrated] = useState(false);
+    const [musicEnabled, setMusicEnabled] = useState(false);
+    const [musicError, setMusicError] = useState("");
 
     /* derived */
     const threshold = session?.threshold || 4;
@@ -170,6 +173,17 @@ export default function ZaneiPage() {
     useEffect(() => {
         setHydrated(true);
         setMobileNoWallet(isMobileWithoutWallet());
+    }, []);
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        audio.loop = true;
+        audio.volume = 0.45;
+
+        return () => {
+            audio.pause();
+        };
     }, []);
 
     /* ── API helpers (identical logic to app/final) ── */
@@ -397,7 +411,30 @@ export default function ZaneiPage() {
         } catch (e) { setError(e instanceof Error ? e.message : "payout_failed"); setOpStatus(""); }
     }
 
-    useEffect(() => { refresh(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [questId, sessionId]);
+    async function toggleMusic() {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        if (musicEnabled) {
+            audio.pause();
+            setMusicEnabled(false);
+            setMusicError("");
+            return;
+        }
+
+        try {
+            audio.muted = false;
+            await audio.play();
+            setMusicEnabled(true);
+            setMusicError("");
+        } catch (e) {
+            setMusicEnabled(false);
+            setMusicError(e instanceof Error ? e.message : "music_play_failed");
+        }
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => { void refresh(); }, [questId, sessionId]);
 
     /* ════ RENDER ════ */
     if (!hydrated) {
@@ -411,6 +448,7 @@ export default function ZaneiPage() {
     }
     return (
         <GameShell>
+            <audio ref={audioRef} src="/music.mp3" loop preload="auto" muted />
             {/* ── Hero banner ── */}
             <div className="relative mb-6 overflow-hidden rounded-2xl" style={{ height: 180 }}>
                 <Image
@@ -424,6 +462,33 @@ export default function ZaneiPage() {
                     className="absolute inset-0"
                     style={{ background: "linear-gradient(to bottom, rgba(10,10,26,0.3) 0%, rgba(10,10,26,0.85) 100%)" }}
                 />
+                <div className="absolute left-3 top-3">
+                    <button
+                        type="button"
+                        onClick={toggleMusic}
+                        aria-pressed={musicEnabled}
+                        className="rounded-full px-3 py-2 text-[11px] font-semibold tracking-[0.24em] backdrop-blur-sm transition-all"
+                        style={musicEnabled
+                            ? {
+                                background: "rgba(201,150,42,0.25)",
+                                border: "1px solid rgba(201,150,42,0.7)",
+                                color: "#f5e8c0",
+                                boxShadow: "0 0 18px rgba(201,150,42,0.28)",
+                            }
+                            : {
+                                background: "rgba(10,10,26,0.45)",
+                                border: "1px solid rgba(255,255,255,0.18)",
+                                color: "rgba(255,255,255,0.7)",
+                            }}
+                    >
+                        {musicEnabled ? "BGM ON" : "BGM OFF"}
+                    </button>
+                    {musicError && (
+                        <p className="mt-2 max-w-[160px] text-[10px]" style={{ color: "#f3b1b1" }}>
+                            BGMの再生に失敗しました
+                        </p>
+                    )}
+                </div>
                 <div className="absolute bottom-0 left-0 p-5">
                     <p className="text-xs tracking-[0.25em]" style={{ color: "rgba(201,150,42,0.8)" }}>残影 — ZANEI</p>
                     <h1 className="text-2xl font-bold tracking-tight" style={{ color: "#f5e8c0", textShadow: "0 0 20px rgba(201,150,42,0.4)" }}>

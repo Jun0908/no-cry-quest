@@ -1377,7 +1377,7 @@
       "questId": "0x0900000000000000000000000000000000000000000000000000000000000002",
       "threshold": 4,
       "shares": 4,
-      "status": "collecting",
+      "status": "timed_out",
       "participants": [
         {
           "walletAddress": "0x1000000000000000000000000000000000000001",
@@ -1402,7 +1402,44 @@
       ],
       "expiresAt": 1773312556758,
       "createdAt": "2026-03-12T10:19:16.755Z",
-      "updatedAt": "2026-03-12T10:19:16.755Z",
+      "updatedAt": "2026-03-14T03:37:33.719Z",
+      "policy": {
+        "allowReinvite": true,
+        "allowCancel": true
+      },
+      "reinviteCount": 0
+    },
+    "0xdd27cbe3d902f2eb07e031f00eebdb21ffe6810935bcfdfedef91d1f271c53f7": {
+      "sessionId": "0xdd27cbe3d902f2eb07e031f00eebdb21ffe6810935bcfdfedef91d1f271c53f7",
+      "questId": "0x0900000000000000000000000000000000000000000000000000000000000002",
+      "threshold": 4,
+      "shares": 4,
+      "status": "collecting",
+      "participants": [
+        {
+          "walletAddress": "0x1000000000000000000000000000000000000001",
+          "share": "8017e5ffaba09f62e7e9c6964a9a1f7fb815ac3685b413951daf1ddf639eff789f67dfea4d45fb59465e036e813a86bd1fd6fe5301fc7396704fe2e967280699dc4234fb0edb112ac08b5f784624fbcf4563589fc11ae232385cd07c6ff9f563f11ed9f8a4996e39907ebc012727173de1811e2b85f1affa324d5de3e007bf4750e1d24a6fcd3863c61f3824817cd5ca66004152859a33414dd74e5db2e4f08a5587bc82104f7834b38535fa01fa8b4b8c6",
+          "claimToken": "0x68c8613f747bff00cc0cd066b99aba1f5a8fc03689a65a519e5843fcd8a80d76"
+        },
+        {
+          "walletAddress": "0x1000000000000000000000000000000000000002",
+          "share": "8025db87db45ccd0dae6a506ece515744e25783631f22c134f96d8e2a1822e16c4485bdd974841d12a727de8706ac42a1f4b3f6b4d3ca0a295f0e37e466aeca6f13c2e71b76276300e70bb5674c4f02da057e38eab8ca68ee04f1dd5e4701aaffeb8f23796f8ab166593eff6f789650692153417849b4dbc1fa857a2b287942f5558d8d20e46b52f69892591ec16a54a7c018466542d36e0699b7a25633f03d2c27e6f3dbe95da9ac367561f929da8102e6",
+          "claimToken": "0xd93772369ac28ee86f16aa9b02466cdc8d4e3945cbe6f9d8f50aef51ba5e040b"
+        },
+        {
+          "walletAddress": "0x1000000000000000000000000000000000000003",
+          "share": "803933f97f562e0aa60b1e069fdaaf5a83e853faf95dc16d14c86dcaa5e47c21dadbf7b642ad893a9e7c1c55a9bdbeea471752d45bfc8b5062af3fa222352fe21b88afa4f83f281a0e62d5a5694ba4d6b475b3450549077b24d794554d57bb0701b2cff829a82a1cacc7da8d64c395c60d803e5427a59464d7847fade6d2430dd9d2fa1160fd5863d2a2a32a60af7bde2eed642b52924100b1f766b35c454b510e8589c1cdddfc5024fe6b5f970c0ef1636",
+          "claimToken": "0xbdd2fa246078a2eff25cd78b8e46a6a3eb588ec46cc1c7c2d0a9c39cb62de69f"
+        },
+        {
+          "walletAddress": "0x7509da410b30e44b5496a442b85745aa8571a9a3",
+          "share": "8043133cde6160d2521f0db9164269e3f3077d308b8075a6f477d51e92dbdcbb51df3a74c7bc11eceeef9e7856cccd3917d0ea0ad700fa9208fbb08929fc9d339f1fcdce205b071f97648656ad5400f3873f1d0e46d939519e51765ecf9cf22e8378ff9b522884056be477f1b41c2ea5ff902235ea07f5abbe1eeb9303736225bba187e160a8643c3ab75f062ae73a491284338e2cac59b5dda6332ea2bc55792756efe8cc2f298e8693a052d54d28c3da6",
+          "claimToken": "0xd560fa5b7f3c00ee643455f4ed8b4fb93eb1120051978bf4a999c4d328479752"
+        }
+      ],
+      "expiresAt": 1773461278999,
+      "createdAt": "2026-03-14T03:37:58.997Z",
+      "updatedAt": "2026-03-14T03:37:58.997Z",
       "policy": {
         "allowReinvite": true,
         "allowCancel": true
